@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  frontend:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./frontend
+    volumes:
+      - /opt/app/node_modules
+      - ./frontend:/opt/app
+    environment:
+      - WDS_SOCKET_PORT=3000
+    ports:
+      - "3000:3000"
