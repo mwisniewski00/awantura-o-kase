@@ -1,0 +1,6 @@
+@Awantura.Api_HostAddress = http://localhost:5118
+
+GET {{Awantura.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

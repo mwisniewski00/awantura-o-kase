@@ -1,4 +1,4 @@
-namespace backend
+namespace Awantura.Api
 {
     public class WeatherForecast
     {
