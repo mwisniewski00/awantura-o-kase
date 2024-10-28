@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.dev
       context: ./frontend
     volumes:
-      - /opt/app/node_modules
+      - ./frontend/node_modules:/opt/app/node_modules
       - ./frontend:/opt/app
     environment:
       - WDS_SOCKET_PORT=3000
