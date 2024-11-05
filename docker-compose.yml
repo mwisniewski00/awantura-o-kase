@@ -13,3 +13,20 @@ services:
       - WDS_SOCKET_PORT=3000
     ports:
       - "3000:3000"
+  networks:
+      - common-network
+
+  drivers-api:
+    image: drivers-image
+    read_only: true
+    build:
+      context: ./backend
+      dockerfile: Awantura.Api/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - common-network
+
+networks:
+  common-network:
+    driver: bridge

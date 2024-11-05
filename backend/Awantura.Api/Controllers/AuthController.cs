@@ -73,7 +73,7 @@ namespace Awantura.Api.Controllers
                 }
                 else return BadRequest("Password is incorrect");
             }
-            else return BadRequest("Email is incorrect");
+            else return BadRequest("Email is incorrect or User is not registered.");
         }
     }
 }
