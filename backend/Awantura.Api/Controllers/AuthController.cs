@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Awantura.Application.Interfaces;
 using Awantura.Application.Models.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,6 +24,48 @@ namespace Awantura.Api.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
         {
+            return await RegisterUserWithRole(registerRequestDto, "Player");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("RegisterAdmin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequestDto registerRequestDto)
+        {
+            return await RegisterUserWithRole(registerRequestDto, "Admin");
+        }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
+        {
+            var user = await _userManager.FindByEmailAsync(loginRequestDto.Email);
+            if (user == null)
+                return BadRequest("Email is incorrect or User is not registered.");
+
+            var passwordIsValid = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
+            if (!passwordIsValid)
+                return BadRequest("Password is incorrect");
+
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles == null || roles.Count == 0)
+                return BadRequest("No roles found");
+
+            var token = _tokenRepository.CreateJWTToken(user, roles.ToArray());
+            var response = new LoginResponseDto
+            {
+                Id = user.Id,
+                JwtToken = token,
+                UserName = user.UserName,
+                Email = user.Email,
+                Roles = roles.ToList()
+            };
+
+            return Ok(response);
+        }
+
+        #region Private Methods
+
+        private async Task<IActionResult> RegisterUserWithRole(RegisterRequestDto registerRequestDto, string role)
+        {
             var user = new IdentityUser
             {
                 UserName = registerRequestDto.UserName,
@@ -33,42 +76,13 @@ namespace Awantura.Api.Controllers
             if (!identityResult.Succeeded)
                 return BadRequest(identityResult.Errors);
 
-            identityResult = await _userManager.AddToRolesAsync(user, ["Player"]);
+            identityResult = await _userManager.AddToRolesAsync(user, [role]);
             if (!identityResult.Succeeded)
                 return BadRequest(identityResult.Errors);
 
             return Ok(user);
         }
 
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
-        {
-            var user = await _userManager.FindByEmailAsync(loginRequestDto.Email);
-
-            if (user != null)
-            {
-                var checkPassword = await _userManager.CheckPasswordAsync(user, loginRequestDto.Password);
-                if (checkPassword)
-                {
-                    var roles = await _userManager.GetRolesAsync(user);
-                    if (roles != null)
-                    {
-                        var token = _tokenRepository.CreateJWTToken(user, roles.ToArray());
-                        var response = new LoginResponseDto
-                        {
-                            Id = user.Id,
-                            JwtToken = token,
-                            UserName = user.UserName,
-                            Email = user.Email,
-                            Roles = roles.ToList()
-                        };
-                        return Ok(response);
-                    }
-                    else return BadRequest("No roles found");
-                }
-                else return BadRequest("Password is incorrect");
-            }
-            else return BadRequest("Email is incorrect or User is not registered.");
-        }
+        #endregion
     }
 }
