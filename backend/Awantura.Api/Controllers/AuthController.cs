@@ -37,7 +37,7 @@ namespace Awantura.Api.Controllers
             if (!identityResult.Succeeded)
                 return BadRequest(identityResult.Errors);
 
-            return BadRequest();
+            return Ok(user);
         }
 
         [HttpPost("Login")]
