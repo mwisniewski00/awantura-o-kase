@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Awantura.Infrastructure.Helpers;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,8 +18,7 @@ namespace Awantura.Infrastructure.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-
-            var connectionString = _configuration.GetConnectionString("AwanturaAuthConnectionString");
+            var connectionString = ConnectionStringHelper.GetConnectionString(_configuration, "AwanturaAuthConnectionString");
             optionsBuilder.UseSqlServer(connectionString, options =>
             {
                 options.MigrationsAssembly(typeof(AwanturaAuthDbContext).Assembly.FullName);

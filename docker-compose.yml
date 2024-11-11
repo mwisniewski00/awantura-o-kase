@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   frontend:
     restart: always
@@ -13,11 +11,13 @@ services:
       - WDS_SOCKET_PORT=3000
     ports:
       - "3000:3000"
-  networks:
-      - common-network
+    networks:
+        - common-network
 
   drivers-api:
     image: drivers-image
+    environment:
+      CONNECT_TO_DOCKER_DB: ${CONNECT_TO_DOCKER_DB}
     read_only: true
     build:
       context: ./backend
@@ -27,6 +27,22 @@ services:
     networks:
       - common-network
 
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    restart: always
+    networks:
+      - common-network
+
 networks:
   common-network:
     driver: bridge
+
+volumes:
+  sqlserver_data:

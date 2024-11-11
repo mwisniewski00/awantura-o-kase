@@ -4,6 +4,7 @@ using Awantura.Infrastructure.Auth;
 using Awantura.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -19,7 +20,7 @@ builder.Services.AddEndpointsApiExplorer();
 // Add Auth in Swagger
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Awantura o kasê API", Version = "v1" });
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Awantura o kasï¿½ API", Version = "v1" });
 
     options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
     {
@@ -116,6 +117,20 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.UseCors("AllowAll");
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AwanturaAuthDbContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error during Db migration (Migration already initialized ?): {ex.Message}");
+    }
+}
 
 app.MapControllers();
 
