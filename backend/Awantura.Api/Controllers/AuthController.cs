@@ -30,17 +30,12 @@ namespace Awantura.Api.Controllers
             };
 
             var identityResult = await _userManager.CreateAsync(user, registerRequestDto.Password);
+            if (!identityResult.Succeeded)
+                return BadRequest(identityResult.Errors);
 
-            if (identityResult.Succeeded)
-            {
-                if (registerRequestDto.Roles != null || registerRequestDto.Roles.Any())
-                    identityResult = await _userManager.AddToRolesAsync(user, ["Player"]);
-                else
-                    identityResult = await _userManager.AddToRolesAsync(user, registerRequestDto.Roles);
-
-                if (identityResult.Succeeded)
-                    return Ok(user);
-            }
+            identityResult = await _userManager.AddToRolesAsync(user, ["Player"]);
+            if (!identityResult.Succeeded)
+                return BadRequest(identityResult.Errors);
 
             return BadRequest();
         }
