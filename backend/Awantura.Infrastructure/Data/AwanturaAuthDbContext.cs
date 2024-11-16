@@ -15,6 +15,8 @@ namespace Awantura.Infrastructure.Data
             _configuration = configuration;
         }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
@@ -50,6 +52,10 @@ namespace Awantura.Infrastructure.Data
                 }
             };
             modelBuilder.Entity<IdentityRole>().HasData(roles);
+
+            modelBuilder.Entity<RefreshToken>()
+                .HasIndex(r => r.Token)
+                .IsUnique();
         }
     }
 }

@@ -13,12 +13,21 @@ namespace Awantura.Api.Controllers
     {
         public readonly UserManager<IdentityUser> _userManager;
         private readonly ITokenRepository _tokenRepository;
-        private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepository;
 
-        public AuthController(UserManager<IdentityUser> userManager, ITokenRepository tokenRepository)
+        private readonly CookieOptions _cookieOptions;
+
+        public AuthController(UserManager<IdentityUser> userManager, ITokenRepository tokenRepository, IUserRepository userRepository)
         {
             _userManager = userManager;
             _tokenRepository = tokenRepository;
+            _userRepository = userRepository;
+            _cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                MaxAge = TimeSpan.FromDays(7),
+                SameSite = SameSiteMode.Strict,
+            };
         }
 
         [HttpPost("Register")]
@@ -50,6 +59,8 @@ namespace Awantura.Api.Controllers
                 return BadRequest("No roles found");
 
             var token = _tokenRepository.CreateJWTToken(user, roles.ToArray());
+            var refreshToken = await _tokenRepository.CreateRefreshToken(user);
+            Response.Cookies.Append("jwt", refreshToken, _cookieOptions);
             var response = new LoginResponseDto
             {
                 Id = user.Id,
@@ -60,6 +71,55 @@ namespace Awantura.Api.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpGet("RefreshToken")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            if (Request.Cookies.TryGetValue("jwt", out string jwt))
+            {
+                var refreshToken = await _tokenRepository.GetRefreshTokenAsync(jwt);
+                if (refreshToken == null)
+                {
+                    return Forbid();
+                }
+                var user = await _userRepository.GetUserById(refreshToken.UserId);
+
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles == null || roles.Count == 0)
+                    return BadRequest("No roles found for given user");
+
+                var token = _tokenRepository.CreateJWTToken(user, roles.ToArray());
+                var newRefreshToken = await _tokenRepository.CreateRefreshToken(user);
+                Response.Cookies.Append("jwt", newRefreshToken, _cookieOptions);
+                var response = new LoginResponseDto
+                {
+                    Id = user.Id,
+                    JwtToken = token,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Roles = roles.ToList()
+                };
+                return Ok(response);
+            }
+
+            return Forbid();
+        }
+
+        [HttpDelete("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            if (Request.Cookies.TryGetValue("jwt", out string jwt))
+            {
+                var refreshToken = await _tokenRepository.GetRefreshTokenAsync(jwt);
+                if (refreshToken == null)
+                {
+                    return Ok();
+                }
+                await _tokenRepository.RevokeToken(refreshToken.UserId);
+                return Ok();
+            }
+            return Ok();
         }
 
         #region Private Methods

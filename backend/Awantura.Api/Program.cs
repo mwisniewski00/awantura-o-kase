@@ -2,6 +2,7 @@ using Awantura.Application.Interfaces;
 using Awantura.Application.Mappings;
 using Awantura.Infrastructure.Auth;
 using Awantura.Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -92,14 +93,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.Cookie.HttpOnly = true; });
+
+var CLIENT_URL = Environment.GetEnvironmentVariable("CLIENT_URL");
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: "AllowAll",
         builder =>
         {
-            builder.AllowAnyOrigin()
+            builder.WithOrigins(CLIENT_URL)
                    .AllowAnyHeader()
-                   .AllowAnyMethod();
+                   .AllowAnyMethod()
+                   .AllowCredentials();
         });
 });
 

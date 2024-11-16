@@ -18,6 +18,7 @@ services:
     image: drivers-image
     environment:
       CONNECT_TO_DOCKER_DB: ${CONNECT_TO_DOCKER_DB}
+      CLIENT_URL: ${CLIENT_URL}
     read_only: true
     build:
       context: ./backend

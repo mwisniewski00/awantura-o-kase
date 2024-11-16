@@ -2,8 +2,9 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ReactRefreshTypescript = require('react-refresh-typescript');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
-module.exports = (_env, argv) => {
+module.exports = (env, argv) => {
   const isDevelopment = argv.mode === 'development';
   return {
     target: 'web',
@@ -56,6 +57,9 @@ module.exports = (_env, argv) => {
         template: './src/index.html',
         inject: 'body',
         chunks: ['main']
+      }),
+      new Dotenv({
+        path: `.${env.target}.env`
       })
     ].filter(Boolean),
     optimization: {
@@ -82,9 +86,15 @@ module.exports = (_env, argv) => {
       devMiddleware: {
         publicPath: '/'
       },
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      }
+      proxy: [
+        {
+          context: ["/api"],
+          target: 'http://drivers-api:8080',
+          changeOrigin: true,
+          secure: false
+        }
+      ],
+      historyApiFallback: true
     }
   };
 };
