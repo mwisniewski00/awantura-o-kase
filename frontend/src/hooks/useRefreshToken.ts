@@ -11,11 +11,11 @@ const useRefreshToken = () => {
   const refresh = async () => {
     try {
       const response = await refreshToken();
-
       setAuth({
         token: response.data.jwtToken,
         email: response.data.email,
-        username: response.data.userName
+        username: response.data.userName,
+        id: response.data.id
       });
 
       return response.data.jwtToken;

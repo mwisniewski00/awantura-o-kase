@@ -30,8 +30,8 @@ export function SignInForm() {
           setIsLoading(true);
           const loginRequest = validateLoginFormData(formData);
           const { data } = await logIn(loginRequest);
-          const { jwtToken, userName, email } = data;
-          setAuth({ token: jwtToken, username: userName, email });
+          const { jwtToken, userName, email, id } = data;
+          setAuth({ token: jwtToken, username: userName, email, id });
           navigate('/');
         } catch (error) {
           notifyError(`Failed to login: ${getErrorMessage(error)}`);

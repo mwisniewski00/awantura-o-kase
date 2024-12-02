@@ -4,11 +4,13 @@ interface Auth {
   token?: string;
   username?: string;
   email?: string;
+  id?: string;
 }
 
 interface AuthContext {
   auth: Auth;
   setAuth: (auth: Auth) => void;
+  isLoggedIn?: boolean;
 }
 
 const AuthContext = createContext<AuthContext | null>(null);
@@ -16,7 +18,8 @@ const AuthContext = createContext<AuthContext | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [auth, setAuth] = useState<Auth>({});
 
-  const contextValue = useMemo(() => ({ auth, setAuth }), [auth, setAuth]);
+  const isLoggedIn = useMemo(() => Boolean(auth?.token), [auth?.token]);
+  const contextValue = useMemo(() => ({ auth, setAuth, isLoggedIn }), [auth, isLoggedIn]);
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
