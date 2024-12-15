@@ -25,6 +25,13 @@ export const theme = createTheme({
           color: 'rgba(255, 255, 255, 0.3)'
         }
       }
+    },
+    MuiButton: {
+      styleOverrides: {
+        text: {
+          color: '#E6E6FA'
+        }
+      }
     }
   },
   palette: {

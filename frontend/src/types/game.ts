@@ -19,3 +19,10 @@ export interface Game {
   };
   state: GAME_STATE;
 }
+
+export const QUESTION_CATEGORIES = ['GEOGRAPHY', 'ASTRONOMY', 'BIOLOGY', 'CHEMISTRY'];
+
+export enum GAME_SCREEN {
+  KRZYCHU = 'KRZYCHU',
+  CATEGORY_DRAW = 'CATEGORY_DRAW'
+}
