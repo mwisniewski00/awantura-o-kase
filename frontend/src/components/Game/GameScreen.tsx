@@ -3,6 +3,7 @@ import './gamescreen.css';
 import { CategoryDrawScreen } from './CategoryDrawScreen';
 import { KrzychuScreen } from './KrzychuScreen';
 import { GAME_SCREEN } from '../../types/game';
+import { WaitingForPlayersScreen } from './WaitingForPlayersScreen';
 
 interface GameScreenProps {
   screenType: GAME_SCREEN;
@@ -12,8 +13,10 @@ interface GameScreenProps {
 export function GameScreen({ screenType, onStopSpinning }: GameScreenProps) {
   const screenComponent = useMemo(() => {
     switch (screenType) {
+      case GAME_SCREEN.WAITING_FOR_PLAYERS:
+        return <WaitingForPlayersScreen />;
       case GAME_SCREEN.KRZYCHU:
-        return <KrzychuScreen text='Biorę 200 od każdej drużyny i słucham państwa.' />;
+        return <KrzychuScreen text="Biorę 200 od każdej drużyny i słucham państwa." />;
       case GAME_SCREEN.CATEGORY_DRAW:
         return <CategoryDrawScreen onStopSpinning={onStopSpinning} />;
     }

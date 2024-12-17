@@ -7,6 +7,7 @@ import { getErrorMessage } from '../../services/utils';
 import { useErrorNotification } from '../../hooks/useErrorNotification';
 import { Players } from './Players';
 import { GameContent } from './GameContent';
+import { GameProvider } from '../../providers/GameProvider';
 
 const GameContainer = styled.div`
   width: 100%;
@@ -31,7 +32,7 @@ export function Game() {
     const url = window.location.href;
     navigator.clipboard
       .writeText(url)
-      .then(() => notifySuccess('Game url copied.'))
+      .then(() => notifySuccess('Pomyślnie skopiowano link gry.'))
       .catch((err) => {
         console.error('Failed to copy game url', getErrorMessage(err));
         notifyError('Failed to copy game url: ' + getErrorMessage(err));
@@ -39,14 +40,16 @@ export function Game() {
   };
 
   return (
-    <GameContainer>
-      <GameHeader>
-        <Button endIcon={<ContentCopy />} onClick={onCopy}>
-          Copy game url
-        </Button>
-        <Players />
-      </GameHeader>
-      <GameContent />
-    </GameContainer>
+    <GameProvider>
+      <GameContainer>
+        <GameHeader>
+          <Button endIcon={<ContentCopy />} onClick={onCopy}>
+            Kopiuj link gry
+          </Button>
+          <Players />
+        </GameHeader>
+        <GameContent />
+      </GameContainer>
+    </GameProvider>
   );
 }

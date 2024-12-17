@@ -5,8 +5,9 @@ export interface Player {
 
 export enum GAME_STATE {
   NOT_STARTED = 'NOT_STARTED',
-  FIRST_ROUND = 'FIRST_ROUND',
-  SECOND_ROUND = 'SECOND_ROUND',
+  CATEGORY_DRAW = 'CATEGORY_DRAW',
+  BIDDING = 'BIDDING',
+  QUESTION = 'QUESTION',
   FINISHED = 'FINISHED'
 }
 
@@ -20,9 +21,19 @@ export interface Game {
   state: GAME_STATE;
 }
 
-export const QUESTION_CATEGORIES = ['GEOGRAPHY', 'ASTRONOMY', 'BIOLOGY', 'CHEMISTRY'];
+export const QUESTION_CATEGORIES = [
+  'Geografia',
+  'Astronomia',
+  'Biologia',
+  'Chemia',
+  'Film polski',
+  'Piłka nożna',
+  'Wędkarstwo',
+  'Polityka'
+];
 
 export enum GAME_SCREEN {
+  WAITING_FOR_PLAYERS = 'WAITING_FOR_PLAYERS',
   KRZYCHU = 'KRZYCHU',
   CATEGORY_DRAW = 'CATEGORY_DRAW'
 }
