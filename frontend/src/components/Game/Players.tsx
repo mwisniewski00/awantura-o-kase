@@ -3,7 +3,7 @@ import { Chip, ChipOwnProps } from '@mui/material';
 import styled from 'styled-components';
 import { useGameContext } from '../../providers/GameProvider';
 
-const PLAYER_COLOR_TO_CHIP_COLOR_MAPPING: Record<string, ChipOwnProps['color']> = {
+export const PLAYER_COLOR_TO_CHIP_COLOR_MAPPING: Record<string, ChipOwnProps['color']> = {
   blue: 'primary',
   green: 'success',
   yellow: 'warning'
