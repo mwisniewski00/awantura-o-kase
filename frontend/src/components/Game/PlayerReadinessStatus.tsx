@@ -10,6 +10,7 @@ import styled from 'styled-components';
 interface PlayerReadinessStatusProps {
   player: Player;
   playerColor: PLAYER_COLOR;
+  isSpinningDone: boolean;
 }
 
 const iconStyles = { width: '50px', height: '50px' };
@@ -32,7 +33,11 @@ const ButtonContainer = styled.div`
   align-items: center;
 `;
 
-export function PlayerReadinessStatus({ player, playerColor }: PlayerReadinessStatusProps) {
+export function PlayerReadinessStatus({
+  player,
+  playerColor,
+  isSpinningDone
+}: PlayerReadinessStatusProps) {
   const { game, setGame } = useGameContext();
   const {
     auth: { id }
@@ -60,7 +65,8 @@ export function PlayerReadinessStatus({ player, playerColor }: PlayerReadinessSt
         <Button
           variant="contained"
           color={PLAYER_COLOR_TO_BUTTON_COLOR_MAPPING[playerColor]}
-          onClick={onButtonClick}>
+          onClick={onButtonClick}
+          disabled={!isSpinningDone}>
           Gotowy!
         </Button>
       </ButtonContainer>

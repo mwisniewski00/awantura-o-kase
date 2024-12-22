@@ -17,7 +17,15 @@ const getInitialMockedGame = () => ({
       username: 'BlueWarrior'
     }
   },
-  state: GAME_STATE.NOT_STARTED
+  state: GAME_STATE.NOT_STARTED,
+  pool: 1500,
+  currentBiddings: {
+    '123': 500
+  },
+  accountBalances: {
+    '123': 9500
+  },
+  currentRoundNumber: 1
 });
 
 export function GameProvider({ children }: PropsWithChildren<object>) {

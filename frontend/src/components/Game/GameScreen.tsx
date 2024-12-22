@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import './gamescreen.css';
 import { CategoryDrawScreen } from './CategoryDrawScreen';
-import { KrzychuScreen } from './KrzychuScreen';
 import { GAME_SCREEN } from '../../types/game';
 import { WaitingForPlayersScreen } from './WaitingForPlayersScreen';
 import { useGameContext } from '../../providers/GameProvider';
+import { BiddingTvScreenContent } from './BiddingTvScreenContent';
 
 interface GameScreenProps {
   screenType: GAME_SCREEN;
@@ -17,8 +17,8 @@ export function GameScreen({ screenType, onStopSpinning }: GameScreenProps) {
     switch (screenType) {
       case GAME_SCREEN.WAITING_FOR_PLAYERS:
         return <WaitingForPlayersScreen />;
-      case GAME_SCREEN.KRZYCHU:
-        return <KrzychuScreen text="Biorę 200 od każdej drużyny i słucham państwa." />;
+      case GAME_SCREEN.BIDDING:
+        return <BiddingTvScreenContent />;
       case GAME_SCREEN.CATEGORY_DRAW:
         if (!game.currentCategory) return;
         return (

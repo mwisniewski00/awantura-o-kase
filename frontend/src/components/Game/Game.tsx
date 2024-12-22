@@ -11,7 +11,7 @@ import { GameProvider } from '../../providers/GameProvider';
 
 const GameContainer = styled.div`
   width: 100%;
-  min-width: 500px;
+  min-width: 600px;
   max-width: 1500px;
   margin-inline: auto;
   margin-top: 40px;

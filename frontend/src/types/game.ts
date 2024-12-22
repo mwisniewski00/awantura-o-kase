@@ -33,6 +33,15 @@ export interface Game {
   playersReadiness?: Record<string, boolean>;
   state: GAME_STATE;
   currentCategory?: QUESTION_CATEGORY;
+  pool: number;
+  currentBiddings: Record<string, number>;
+  accountBalances: Record<string, number>;
+  currentRoundNumber: number;
+  lastBid?: {
+    playerId: string;
+    timestamp: number;
+    amount: number;
+  };
 }
 
 export enum QUESTION_CATEGORY {
@@ -60,11 +69,13 @@ export const QUESTION_CATEGORIES: QUESTION_CATEGORY[] = [
 export enum GAME_SCREEN {
   WAITING_FOR_PLAYERS = 'WAITING_FOR_PLAYERS',
   KRZYCHU = 'KRZYCHU',
+  BIDDING = 'BIDDING',
   CATEGORY_DRAW = 'CATEGORY_DRAW'
 }
 
 export enum GAME_CONTROLS_SCREEN {
   CATEGORY_DRAW_CONFIRM = 'CATEGORY_DRAW_CONFIRM',
+  BIDDING = 'BIDDING',
   // temporary screen to mock backend behaviours
   MOCKED_PROGRESS = 'MOCKED_PROGRESS'
 }

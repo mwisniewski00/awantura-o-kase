@@ -6,6 +6,7 @@ import { Button } from '@mui/material';
 import { useGameContext } from '../../providers/GameProvider';
 import styled from 'styled-components';
 import { useAuth } from '../../providers/AuthProvider';
+import { BiddingScreen } from './BiddingScreen';
 
 interface GameControlsProps {
   controlsScreen: GAME_CONTROLS_SCREEN;
@@ -44,6 +45,14 @@ export function GameControls({
         players: {
           ...game.players,
           green: newPlayer
+        },
+        currentBiddings: {
+          ...game.currentBiddings,
+          [newPlayer.id]: 500
+        },
+        accountBalances: {
+          ...game.accountBalances,
+          [newPlayer.id]: 9500
         }
       }));
     }
@@ -57,6 +66,14 @@ export function GameControls({
         players: {
           ...game.players,
           yellow: newPlayer
+        },
+        currentBiddings: {
+          ...game.currentBiddings,
+          [newPlayer.id]: 500
+        },
+        accountBalances: {
+          ...game.accountBalances,
+          [newPlayer.id]: 9500
         },
         state: GAME_STATE.CATEGORY_DRAW,
         currentCategory: QUESTION_CATEGORIES[0]
@@ -73,6 +90,8 @@ export function GameControls({
     switch (controlsScreen) {
       case GAME_CONTROLS_SCREEN.CATEGORY_DRAW_CONFIRM:
         return <CategoryDrawConfirm isSpinningDone={isSpinningDone} />;
+      case GAME_CONTROLS_SCREEN.BIDDING:
+        return <BiddingScreen />;
       default:
         return (
           <ContinueButtonContainer>

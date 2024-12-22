@@ -30,6 +30,14 @@ export const theme = createTheme({
       styleOverrides: {
         text: {
           color: '#E6E6FA'
+        },
+        outlinedPrimary: {
+          borderColor: 'white',
+          color: 'white',
+          '&:hover': {
+            borderColor: '#dcdcdc',
+            color: '#dcdcdc'
+          }
         }
       }
     }

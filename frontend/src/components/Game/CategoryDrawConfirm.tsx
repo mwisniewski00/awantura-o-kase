@@ -1,10 +1,11 @@
-import { Button, Paper } from '@mui/material';
+import { Button } from '@mui/material';
 import React from 'react';
 import styled from 'styled-components';
 import { useGameContext } from '../../providers/GameProvider';
 import { GAME_STATE, PLAYER_COLOR } from '../../types/game';
 import { PLAYER_CSS_COLORS } from '../../utils/styles';
 import { PlayerReadinessStatus } from './PlayerReadinessStatus';
+import { AnnouncementBanner } from '../Reusable/AnnouncmentBanner';
 
 const Container = styled.div`
   height: 100%;
@@ -13,16 +14,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-const AnnouncementBanner = styled(Paper)<{ show: boolean }>`
-  width: 100%;
-  height: 60px;
-  opacity: ${(props) => (props.show ? '1' : '0')};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.5s ease-in-out;
 `;
 
 const PlayerReadinessControlsContainer = styled.div`
@@ -93,7 +84,11 @@ export function CategoryDrawConfirm({ isSpinningDone }: CategoryDrawConfirm) {
               backgroundColor={PLAYER_CSS_COLORS[playerColor as PLAYER_COLOR]}>
               <span>{player.username}</span>
             </PlayerLabel>
-            <PlayerReadinessStatus player={player} playerColor={playerColor as PLAYER_COLOR} />
+            <PlayerReadinessStatus
+              player={player}
+              playerColor={playerColor as PLAYER_COLOR}
+              isSpinningDone={isSpinningDone}
+            />
           </PlayerReadinessCard>
         ))}
       </PlayerReadinessControlsContainer>

@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { Game, GAME_STATE } from '../../../types/game';
 import { useAuth } from '../../../providers/AuthProvider';
 // import useAxiosPrivate from "../../useAxiosPrivate";
 
@@ -10,16 +9,10 @@ export function useCreateGame() {
   } = useAuth();
   return useCallback(
     () =>
-      new Promise<Game>((resolve, reject) =>
+      new Promise<string>((resolve, reject) =>
         setTimeout(() => {
           if (!id || !username) return reject("Can' create game. User not authorized.");
-          resolve({
-            id: crypto.randomUUID().toString(),
-            players: {
-              blue: { id, username }
-            },
-            state: GAME_STATE.NOT_STARTED
-          });
+          resolve(crypto.randomUUID().toString());
         }, 2000)
       ),
     [id, username]

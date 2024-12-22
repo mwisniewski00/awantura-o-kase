@@ -15,9 +15,9 @@ export function CreateGame() {
   useEffect(() => {
     (async () => {
       try {
-        const game = await createGame();
+        const gameId = await createGame();
         notifySuccess('Game created');
-        navigate(`/game/${game.id}`);
+        navigate(`/game/${gameId}`);
       } catch (error) {
         notifyError(`Failed to create game, ${getErrorMessage(error)}`);
       }
