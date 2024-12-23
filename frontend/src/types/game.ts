@@ -23,6 +23,11 @@ export const PLAYERS_COLORS: PLAYER_COLOR[] = [
   PLAYER_COLOR.YELLOW
 ];
 
+export interface Question {
+  question: string;
+  answers: string[];
+}
+
 export interface Game {
   id: string;
   players: {
@@ -42,6 +47,7 @@ export interface Game {
     timestamp: number;
     amount: number;
   };
+  questions: Record<number, Question>;
 }
 
 export enum QUESTION_CATEGORY {
@@ -70,12 +76,14 @@ export enum GAME_SCREEN {
   WAITING_FOR_PLAYERS = 'WAITING_FOR_PLAYERS',
   KRZYCHU = 'KRZYCHU',
   BIDDING = 'BIDDING',
+  QUESTION = 'QUESTION',
   CATEGORY_DRAW = 'CATEGORY_DRAW'
 }
 
 export enum GAME_CONTROLS_SCREEN {
   CATEGORY_DRAW_CONFIRM = 'CATEGORY_DRAW_CONFIRM',
   BIDDING = 'BIDDING',
+  QUESTION = 'QUESTION',
   // temporary screen to mock backend behaviours
   MOCKED_PROGRESS = 'MOCKED_PROGRESS'
 }

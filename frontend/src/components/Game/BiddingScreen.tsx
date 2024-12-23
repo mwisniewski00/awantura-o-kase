@@ -3,7 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useGameContext } from '../../providers/GameProvider';
 import { BiddingCell } from './BiddingCell';
-import { GAME_STATE, PLAYER_COLOR } from '../../types/game';
+import { GAME_STATE, PLAYER_COLOR, Question } from '../../types/game';
 import { AccountBalanceCell } from './AccountBalanceCell';
 import { BiddingControls } from './BiddingControls';
 import { AnnouncementBanner } from '../Reusable/AnnouncmentBanner';
@@ -63,6 +63,11 @@ const TimerCellsContainer = styled.div`
   flex-direction: column;
 `;
 
+const MOCKED_QUESTION: Question = {
+  question: 'Jak nazywa się najjaśniejsza gwiazda na nocnym niebie?',
+  answers: ['Betelgeza', 'Syriusz', 'Aldebaran', 'Polaris']
+};
+
 export function BiddingScreen() {
   const {
     game: { players, pool, currentCategory, currentRoundNumber, lastBid },
@@ -72,9 +77,11 @@ export function BiddingScreen() {
   const onTimeEnd = () =>
     setGame((game) => ({
       ...game,
-      lastBid: undefined,
       state: GAME_STATE.QUESTION,
-      currentBiddings: {}
+      currentBiddings: {},
+      questions: {
+        1: MOCKED_QUESTION
+      }
     }));
 
   return (

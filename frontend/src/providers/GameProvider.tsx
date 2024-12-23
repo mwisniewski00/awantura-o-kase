@@ -25,7 +25,8 @@ const getInitialMockedGame = () => ({
   accountBalances: {
     '123': 9500
   },
-  currentRoundNumber: 1
+  currentRoundNumber: 1,
+  questions: {}
 });
 
 export function GameProvider({ children }: PropsWithChildren<object>) {

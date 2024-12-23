@@ -5,6 +5,7 @@ import { GAME_SCREEN } from '../../types/game';
 import { WaitingForPlayersScreen } from './WaitingForPlayersScreen';
 import { useGameContext } from '../../providers/GameProvider';
 import { BiddingTvScreenContent } from './BiddingTvScreenContent';
+import { QuestionTvScreen } from './QuestionTvScreen';
 
 interface GameScreenProps {
   screenType: GAME_SCREEN;
@@ -19,6 +20,8 @@ export function GameScreen({ screenType, onStopSpinning }: GameScreenProps) {
         return <WaitingForPlayersScreen />;
       case GAME_SCREEN.BIDDING:
         return <BiddingTvScreenContent />;
+      case GAME_SCREEN.QUESTION:
+        return <QuestionTvScreen />;
       case GAME_SCREEN.CATEGORY_DRAW:
         if (!game.currentCategory) return;
         return (

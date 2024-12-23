@@ -7,6 +7,7 @@ import { useGameContext } from '../../providers/GameProvider';
 import styled from 'styled-components';
 import { useAuth } from '../../providers/AuthProvider';
 import { BiddingScreen } from './BiddingScreen';
+import { QuestionControls } from './QuestionControls';
 
 interface GameControlsProps {
   controlsScreen: GAME_CONTROLS_SCREEN;
@@ -92,6 +93,8 @@ export function GameControls({
         return <CategoryDrawConfirm isSpinningDone={isSpinningDone} />;
       case GAME_CONTROLS_SCREEN.BIDDING:
         return <BiddingScreen />;
+      case GAME_CONTROLS_SCREEN.QUESTION:
+        return <QuestionControls />;
       default:
         return (
           <ContinueButtonContainer>

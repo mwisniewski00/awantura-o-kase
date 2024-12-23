@@ -1,4 +1,5 @@
 import { AxiosError } from 'axios';
+import { PLAYER_COLOR } from '../types/game';
 
 function isAxiosError(error: unknown): error is AxiosError {
   return (
@@ -43,3 +44,21 @@ export function getErrorMessage(error: unknown) {
   }
   return 'Unexpected error';
 }
+
+export function indexToLetter(index: number): string {
+  if (index < 0) {
+    throw new Error('Index must be a non-negative number');
+  }
+  let letter = '';
+  while (index >= 0) {
+    letter = String.fromCharCode((index % 26) + 65) + letter;
+    index = Math.floor(index / 26) - 1;
+  }
+  return letter;
+}
+
+export const PLAYER_COLOR_TEXT: Record<PLAYER_COLOR, string> = {
+  blue: 'Niebiescy',
+  green: 'Zieloni',
+  yellow: 'Żółci'
+};

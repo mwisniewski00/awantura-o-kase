@@ -3,12 +3,7 @@ import { useGameContext } from '../../providers/GameProvider';
 import { KrzychuScreen } from './KrzychuScreen';
 import React from 'react';
 import { PLAYER_COLOR } from '../../types/game';
-
-const PLAYER_COLOR_TEXT: Record<PLAYER_COLOR, string> = {
-  blue: 'Niebiescy',
-  green: 'Zieloni',
-  yellow: 'Żółci'
-};
+import { PLAYER_COLOR_TEXT } from '../../services/utils';
 
 export function BiddingTvScreenContent() {
   const {
