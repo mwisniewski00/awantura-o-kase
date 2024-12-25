@@ -45,7 +45,6 @@ export function SignUpForm() {
 
   const onSubmit = (data: FormData) => {
     const hasErrors = Object.keys(errors).length;
-    console.log('has errors', hasErrors);
     if (hasErrors) return;
     createUserAccount(data);
   };

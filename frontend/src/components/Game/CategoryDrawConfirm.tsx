@@ -54,12 +54,14 @@ const PlayerLabel = styled.div<{ backgroundColor: string }>`
 
 interface CategoryDrawConfirm {
   isSpinningDone: boolean;
+  setIsSpinningDone: (isDone: boolean) => void;
 }
 
-export function CategoryDrawConfirm({ isSpinningDone }: CategoryDrawConfirm) {
+export function CategoryDrawConfirm({ isSpinningDone, setIsSpinningDone }: CategoryDrawConfirm) {
   const { game, setGame } = useGameContext();
 
-  const onContinueClick = () =>
+  const onContinueClick = () => {
+    setIsSpinningDone(false);
     setGame((game) => ({
       ...game,
       state: GAME_STATE.BIDDING,
@@ -70,6 +72,7 @@ export function CategoryDrawConfirm({ isSpinningDone }: CategoryDrawConfirm) {
         [game.players[PLAYER_COLOR.YELLOW]?.id ?? '']: true
       }
     }));
+  };
 
   return (
     <Container>

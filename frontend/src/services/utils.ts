@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { PLAYER_COLOR } from '../types/game';
+import { PLAYER_COLOR, QUESTION_CATEGORY } from '../types/game';
 
 function isAxiosError(error: unknown): error is AxiosError {
   return (
@@ -62,3 +62,13 @@ export const PLAYER_COLOR_TEXT: Record<PLAYER_COLOR, string> = {
   green: 'Zieloni',
   yellow: 'Żółci'
 };
+
+export const MOCKED_QUESTIONS_CATEGORIES = [
+  QUESTION_CATEGORY.ASTRONOMY,
+  QUESTION_CATEGORY.GEOGRAPHY,
+  QUESTION_CATEGORY.BIOLOGY,
+  QUESTION_CATEGORY.CHEMISTRY,
+  QUESTION_CATEGORY.FISHING,
+  QUESTION_CATEGORY.FOOTBALL,
+  QUESTION_CATEGORY.POLISH_CINEMA
+];

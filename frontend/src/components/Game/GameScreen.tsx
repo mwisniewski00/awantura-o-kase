@@ -6,6 +6,7 @@ import { WaitingForPlayersScreen } from './WaitingForPlayersScreen';
 import { useGameContext } from '../../providers/GameProvider';
 import { BiddingTvScreenContent } from './BiddingTvScreenContent';
 import { QuestionTvScreen } from './QuestionTvScreen';
+import { FinishedGameScreen } from './FinishedGameScreen';
 
 interface GameScreenProps {
   screenType: GAME_SCREEN;
@@ -27,6 +28,8 @@ export function GameScreen({ screenType, onStopSpinning }: GameScreenProps) {
         return (
           <CategoryDrawScreen onStopSpinning={onStopSpinning} category={game.currentCategory} />
         );
+      case GAME_SCREEN.FINISHED:
+        return <FinishedGameScreen />;
     }
   }, [onStopSpinning, screenType, game]);
 

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Wheel } from 'react-custom-roulette';
 import { QUESTION_CATEGORIES, QUESTION_CATEGORY } from '../../types/game';
 import { WheelData } from 'react-custom-roulette/dist/components/Wheel/types';
@@ -25,8 +25,22 @@ interface CategoryDrawScreen {
 export function CategoryDrawScreen({ onStopSpinning, category }: CategoryDrawScreen) {
   const [startSpinnig, setStartSpinning] = useState(false);
   const categoryIndex = WHEEL_OPTIONS.findIndex(({ option }) => option === category);
+  const isMounted = useRef(true);
 
-  useEffect(() => setStartSpinning(true), []);
+  // Otherwise onStopSpinning callback will be called, even when component is already unomunted :/
+  const onStop = useCallback(() => {
+    if (isMounted.current) {
+      onStopSpinning();
+    }
+  }, [onStopSpinning]);
+
+  useEffect(() => {
+    isMounted.current = true;
+    setStartSpinning(true);
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   return (
     <WheelContainer>
@@ -34,7 +48,7 @@ export function CategoryDrawScreen({ onStopSpinning, category }: CategoryDrawScr
         data={WHEEL_OPTIONS}
         prizeNumber={categoryIndex}
         mustStartSpinning={startSpinnig}
-        onStopSpinning={onStopSpinning}
+        onStopSpinning={onStop}
       />
     </WheelContainer>
   );

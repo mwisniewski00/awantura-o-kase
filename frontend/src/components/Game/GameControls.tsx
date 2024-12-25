@@ -84,17 +84,25 @@ export function GameControls({
     }
     if (game.state === GAME_STATE.CATEGORY_DRAW) {
       setGame((game) => ({ ...game, state: GAME_STATE.BIDDING }));
+      return;
     }
   }, [game.players, game.state, id, setGame, setIsSpinningDone]);
 
   const currentScreen = useMemo(() => {
     switch (controlsScreen) {
       case GAME_CONTROLS_SCREEN.CATEGORY_DRAW_CONFIRM:
-        return <CategoryDrawConfirm isSpinningDone={isSpinningDone} />;
+        return (
+          <CategoryDrawConfirm
+            isSpinningDone={isSpinningDone}
+            setIsSpinningDone={setIsSpinningDone}
+          />
+        );
       case GAME_CONTROLS_SCREEN.BIDDING:
         return <BiddingScreen />;
       case GAME_CONTROLS_SCREEN.QUESTION:
         return <QuestionControls />;
+      case GAME_CONTROLS_SCREEN.FINISHED:
+        return null;
       default:
         return (
           <ContinueButtonContainer>
@@ -104,7 +112,7 @@ export function GameControls({
           </ContinueButtonContainer>
         );
     }
-  }, [controlsScreen, isSpinningDone, onProceedClick]);
+  }, [controlsScreen, isSpinningDone, onProceedClick, setIsSpinningDone]);
 
   return currentScreen;
 }

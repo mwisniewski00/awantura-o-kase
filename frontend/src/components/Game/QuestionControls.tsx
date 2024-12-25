@@ -2,7 +2,11 @@ import styled from 'styled-components';
 import { useGameContext } from '../../providers/GameProvider';
 import React from 'react';
 import { Paper } from '@mui/material';
-import { indexToLetter, PLAYER_COLOR_TEXT } from '../../services/utils';
+import {
+  indexToLetter,
+  MOCKED_QUESTIONS_CATEGORIES,
+  PLAYER_COLOR_TEXT
+} from '../../services/utils';
 import { useAuth } from '../../providers/AuthProvider';
 import { PLAYER_CSS_COLORS } from '../../utils/styles';
 import { GAME_STATE, PLAYER_COLOR } from '../../types/game';
@@ -44,7 +48,13 @@ const AnsweringPlayerInfo = styled(Paper)<{ backgroundColor: string }>`
 `;
 
 const MOCKED_ANSWERS_PER_ROUND: Record<number, number> = {
-  1: 1
+  1: 1,
+  2: 1,
+  3: 1,
+  4: 2,
+  5: 1,
+  6: 2,
+  7: 1
 };
 
 export function QuestionControls() {
@@ -91,8 +101,10 @@ export function QuestionControls() {
     );
     setGame((game) => ({
       ...game,
-      state: GAME_STATE.CATEGORY_DRAW,
-      currentRoundNumber: game.currentRoundNumber + 1,
+      state: game.currentRoundNumber === 7 ? GAME_STATE.FINISHED : GAME_STATE.CATEGORY_DRAW,
+      currentRoundNumber:
+        game.currentRoundNumber === 7 ? game.currentRoundNumber : game.currentRoundNumber + 1,
+      currentCategory: MOCKED_QUESTIONS_CATEGORIES[game.currentRoundNumber],
       lastBid: undefined,
       playersReadiness: undefined,
       currentBiddings: newBiddings
