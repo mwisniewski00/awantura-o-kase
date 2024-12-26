@@ -2,7 +2,7 @@
 
 namespace Awantura.Domain.Entities
 {
-    public class Games
+    public class Game
     {
         public Guid Id { get; set; }
         public GameState GameState { get; set; }

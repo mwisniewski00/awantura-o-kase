@@ -1,6 +1,6 @@
 ﻿namespace Awantura.Domain.Entities
 {
-    public class Bids
+    public class Bid
     {
         public Guid GameId { get; set; }
         public Guid PlayerId { get; set; }

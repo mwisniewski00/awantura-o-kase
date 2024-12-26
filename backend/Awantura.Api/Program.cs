@@ -1,5 +1,6 @@
 using Awantura.Application.Interfaces;
 using Awantura.Application.Mappings;
+using Awantura.Application.Services;
 using Awantura.Infrastructure.Auth;
 using Awantura.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -52,6 +53,7 @@ builder.Services.AddSwaggerGen(options =>
 //Add repositoires
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IGameRepository, GameRepository>();
 
 // Add db context
 builder.Services.AddDbContext<AwanturaAuthDbContext>();

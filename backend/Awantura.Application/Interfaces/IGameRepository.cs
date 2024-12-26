@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Awantura.Domain.Enums
+namespace Awantura.Application.Interfaces
 {
-    public enum GameState
+    public interface IGameRepository
     {
-        NotStarted,
-        FirstRound,
-        SecondRound,
-        Finished
+        Task<Guid> CreateNewGame(Guid playerId);
     }
 }
