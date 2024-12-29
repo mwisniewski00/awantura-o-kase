@@ -42,8 +42,8 @@ namespace Awantura.Infrastructure.Services
                 {
                     Id = Guid.NewGuid(),
                     BluePlayerId = playerId,
-                    GreenPlayerId = Guid.Empty,
-                    YellowPlayerId = Guid.Empty,
+                    GreenPlayerId = null,
+                    YellowPlayerId = null,
                     GameId = gameId
                 }
             };
@@ -125,11 +125,11 @@ namespace Awantura.Infrastructure.Services
                     Message = "Game guid is incorrect, it doesn't exsist."
                 };
             }
-                
+
 
             if (game.GameState == GameState.NotStarted)
             {
-                game.GameState = GameState.FirstRound;
+                game.GameState = GameState.CATEGORY_DRAW;
                 game.Round = 1;
             }
             else
@@ -150,6 +150,28 @@ namespace Awantura.Infrastructure.Services
                 Success = true,
                 Message = $"Game {game.Id} started!"
             };
+        }
+
+        public async Task<Game> GetGame(Guid gameId, string playerId)
+        {
+            var game = await _context.Games.Include(g => g.GameParticipants)
+               .FirstOrDefaultAsync(g => g.Id == gameId);
+
+            if (game == null)
+            {
+                return null;
+            }
+
+            var participants = game.GameParticipants;
+            var playerGuid = new Guid(playerId);
+
+            if (participants.BluePlayerId == playerGuid || participants.GreenPlayerId == playerGuid || participants.YellowPlayerId == playerGuid)
+            {
+                return game;
+            }
+
+            // Player is not a participant of game
+            return null;
         }
     }
 }

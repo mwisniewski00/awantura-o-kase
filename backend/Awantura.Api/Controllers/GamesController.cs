@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using Awantura.Application.Interfaces;
 using Awantura.Application.Models.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -27,64 +28,73 @@ namespace Awantura.Api.Controllers
         [Authorize(Roles = "Admin, Player")]
         public async Task<IActionResult> CreateNewGame()
         {
-            if (Request.Cookies.TryGetValue("jwt", out string jwt))
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
             {
-                var refreshToken = await _tokenRepository.GetRefreshTokenAsync(jwt);
-                if (refreshToken == null)
-                    return Forbid();
-
-                var user = await _userRepository.GetUserById(refreshToken.UserId);
-                var userDto = _mapper.Map<PlayerDto>(user);
-
-                var gameGuid = await _gameRepository.CreateNewGame(userDto.Id);
-                return Ok(gameGuid);
+                return Forbid();
             }
+            var user = await _userRepository.GetUserById(userId);
+            var userDto = _mapper.Map<PlayerDto>(user);
 
-            return Forbid();
+            var gameGuid = await _gameRepository.CreateNewGame(userDto.Id);
+            return Ok(gameGuid);
         }
 
         [HttpPost("JoinGame/{gameId}")]
         [Authorize(Roles = "Admin, Player")]
         public async Task<IActionResult> JoinGame(Guid gameId)
         {
-            if (Request.Cookies.TryGetValue("jwt", out string jwt))
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
             {
-                var refreshToken = await _tokenRepository.GetRefreshTokenAsync(jwt);
-                if (refreshToken == null)
-                    return Forbid();
-
-                var user = await _userRepository.GetUserById(refreshToken.UserId);
-                var userDto = _mapper.Map<PlayerDto>(user);
-
-                var result = await _gameRepository.AddPlayerToGame(gameId, userDto.Id);
-                if (!result.Success)
-                    return BadRequest(result.Message);
-
-                return Ok(result.Message);
+                return Forbid();
             }
 
-            return Forbid();
+            var user = await _userRepository.GetUserById(userId);
+            var userDto = _mapper.Map<PlayerDto>(user);
+
+            var result = await _gameRepository.AddPlayerToGame(gameId, userDto.Id);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Message);
         }
 
         [HttpPost("StartGame/{gameId}")]
         [Authorize(Roles = "Admin, Player")]
         public async Task<IActionResult> StartGame(Guid gameId)
         {
-            if (Request.Cookies.TryGetValue("jwt", out string jwt))
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
             {
-                var refreshToken = await _tokenRepository.GetRefreshTokenAsync(jwt);
-                if (refreshToken == null)
-                    return Forbid();
-
-
-                var result = await _gameRepository.StartGame(gameId);
-                if (!result.Success)
-                    return BadRequest(result.Message);
-
-                return Ok(result.Message);
+                return Forbid();
             }
 
-            return Forbid();
+            var result = await _gameRepository.StartGame(gameId);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Message);
+        }
+
+        [HttpGet("GetGame/{gameId}")]
+        [Authorize(Roles = "Admin, Player")]
+        public async Task<IActionResult> GetGame(Guid gameId)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Forbid();
+            }
+
+            var game = await _gameRepository.GetGame(gameId, userId);
+
+            if (game == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(game);
         }
     }
 }

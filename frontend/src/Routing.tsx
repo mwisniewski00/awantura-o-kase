@@ -7,8 +7,8 @@ import PersistLogin from './components/Auth/PersistLogin';
 import Logout from './components/Auth/Logout';
 import UserProfile from './components/UserProfile/UserProfile';
 import { Main } from './components/Main/Main';
-import { CreateGame } from './components/Actions/CreateGame';
 import { Game } from './components/Game/Game';
+import RequireAuth from './components/Auth/RequireAuth';
 
 export default function Routing() {
   return (
@@ -18,9 +18,10 @@ export default function Routing() {
         <Route path={ROUTES.SIGN_IN} Component={SignInForm} />
         <Route path={ROUTES.SIGN_UP} Component={SignUpForm} />
         <Route path={ROUTES.LOG_OUT} Component={Logout} />
-        <Route path={ROUTES.ACCOUNT} Component={UserProfile} />
-        <Route path={ROUTES.CREATE_GAME} Component={CreateGame} />
-        <Route path="/game/:id" Component={Game} />
+        <Route element={<RequireAuth />}>
+          <Route path={ROUTES.ACCOUNT} Component={UserProfile} />
+          <Route path="/game/:id" Component={Game} />
+        </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

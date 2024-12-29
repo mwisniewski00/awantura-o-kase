@@ -4,11 +4,11 @@ export interface Player {
 }
 
 export enum GAME_STATE {
-  NOT_STARTED = 'NOT_STARTED',
-  CATEGORY_DRAW = 'CATEGORY_DRAW',
-  BIDDING = 'BIDDING',
-  QUESTION = 'QUESTION',
-  FINISHED = 'FINISHED'
+  NOT_STARTED,
+  CATEGORY_DRAW,
+  BIDDING,
+  QUESTION,
+  FINISHED
 }
 
 export enum PLAYER_COLOR {
@@ -88,4 +88,15 @@ export enum GAME_CONTROLS_SCREEN {
   FINISHED = 'FINISHED',
   // temporary screen to mock backend behaviours
   MOCKED_PROGRESS = 'MOCKED_PROGRESS'
+}
+
+export interface GameApiResponse {
+  id: string;
+  round: number;
+  gameParticipants: {
+    bluePlayerId: string;
+    greenPlayerId?: string;
+    yellowPlayerId?: string;
+  };
+  gameState: GAME_STATE;
 }

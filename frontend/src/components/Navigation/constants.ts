@@ -8,8 +8,7 @@ export enum ROUTES {
   SIGN_UP = '/sign-up',
   ACCOUNT = '/account',
   LOG_OUT = '/logout',
-  MAIN = '/',
-  CREATE_GAME = '/create-game'
+  MAIN = '/'
 }
 
 export const MAIN_PAGES = ['Jak grać?', 'Ranking'];

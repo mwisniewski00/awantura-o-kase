@@ -1,20 +1,20 @@
 import { useCallback } from 'react';
-import { useAuth } from '../../../providers/AuthProvider';
-// import useAxiosPrivate from "../../useAxiosPrivate";
+import useAxiosPrivate from '../../useAxiosPrivate';
+import { getErrorMessage } from '../../../services/utils';
+import { useErrorNotification } from '../../useErrorNotification';
+import { useNavigate } from 'react-router-dom';
 
 export function useCreateGame() {
-  // const axiosPrivate = useAxiosPrivate();
-  const {
-    auth: { id, username }
-  } = useAuth();
-  return useCallback(
-    () =>
-      new Promise<string>((resolve, reject) =>
-        setTimeout(() => {
-          if (!id || !username) return reject("Can' create game. User not authorized.");
-          resolve(crypto.randomUUID().toString());
-        }, 2000)
-      ),
-    [id, username]
-  );
+  const axiosPrivate = useAxiosPrivate();
+  const showErrorFlag = useErrorNotification();
+  const navigate = useNavigate();
+  return useCallback(async () => {
+    try {
+      const { data } = await axiosPrivate.post('/Games/CreateGame');
+      navigate(`game/${data}`);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      showErrorFlag(message);
+    }
+  }, [axiosPrivate, navigate, showErrorFlag]);
 }

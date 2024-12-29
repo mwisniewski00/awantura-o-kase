@@ -1,4 +1,5 @@
 ﻿using Awantura.Application.Models;
+using Awantura.Domain.Entities;
 
 namespace Awantura.Application.Interfaces
 {
@@ -7,5 +8,6 @@ namespace Awantura.Application.Interfaces
         Task<Guid> CreateNewGame(Guid playerId);
         Task<CustomMessageResult> AddPlayerToGame(Guid gameId, Guid playerId);
         Task<CustomMessageResult> StartGame(Guid gameId);
+        Task<Game> GetGame(Guid gameId, string playerId);
     }
 }

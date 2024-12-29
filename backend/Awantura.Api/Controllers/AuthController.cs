@@ -80,7 +80,7 @@ namespace Awantura.Api.Controllers
             if (Request.Cookies.TryGetValue("jwt", out string jwt))
             {
                 var refreshToken = await _tokenRepository.GetRefreshTokenAsync(jwt);
-                if (refreshToken == null)
+                if (refreshToken == null || refreshToken.ExpiryDate < DateTime.Now)
                 {
                     return Forbid();
                 }

@@ -9,8 +9,9 @@ namespace Awantura.Domain.Enums
     public enum GameState
     {
         NotStarted,
-        FirstRound,
-        SecondRound,
-        Finished
+        CATEGORY_DRAW,
+        BIDDING,
+        QUESTION,
+        FINISHED
     }
 }

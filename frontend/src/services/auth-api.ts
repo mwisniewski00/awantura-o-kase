@@ -1,4 +1,4 @@
-import { AxiosClientPublic, AxiosClient } from './AxiosClient';
+import { AxiosClientPublic, AxiosClientWithCookies } from './AxiosClient';
 
 export interface CreateAccountRequest {
   userName: string;
@@ -27,9 +27,9 @@ export function logIn(body: LogInRequest) {
 }
 
 export function refreshToken() {
-  return AxiosClient.get<LoginResponse>('/Auth/RefreshToken');
+  return AxiosClientWithCookies.get<LoginResponse>('/Auth/RefreshToken');
 }
 
 export function logout() {
-  return AxiosClient.delete('/Auth/Logout');
+  return AxiosClientWithCookies.delete('/Auth/Logout');
 }

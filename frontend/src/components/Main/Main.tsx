@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import DollarCoinIcon from '../../images/DollarCoinIcon';
 import { gsap } from 'gsap';
 import styled from 'styled-components';
@@ -7,6 +7,8 @@ import { Button } from '@mui/material';
 import { useAuth } from '../../providers/AuthProvider';
 import { ROUTES } from '../Navigation/constants';
 import { useNavigate } from 'react-router-dom';
+import { useCreateGame } from '../../hooks/api/game/useCreateGame';
+import { LoadingPage } from '../Reusable/LoadingPage';
 
 const DOLLAR_ICON_CLASS = '.dollar-icon';
 
@@ -32,27 +34,35 @@ const WelcomeMessageTitle = styled.div`
 `;
 
 interface BUTTON_OPTION {
-  route: ROUTES;
+  callback: () => void;
   text: string;
 }
 
 type BUTTON_OPTION_KEY = 'LOGIN' | 'PLAY_NOW';
 
-const BUTTON_OPTIONS: Record<BUTTON_OPTION_KEY, BUTTON_OPTION> = {
-  LOGIN: {
-    route: ROUTES.SIGN_IN,
-    text: 'Zaloguj się by zagrać'
-  },
-  PLAY_NOW: {
-    route: ROUTES.CREATE_GAME,
-    text: 'Stwórz grę'
-  }
-};
-
 export function Main() {
   const { isLoggedIn } = useAuth();
   const scope = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const createGame = useCreateGame();
+  const [isCreatingGame, setIsCreatingGame] = useState(false);
+
+  const BUTTON_OPTIONS: Record<BUTTON_OPTION_KEY, BUTTON_OPTION> = {
+    LOGIN: {
+      callback: () => navigate(ROUTES.SIGN_IN),
+      text: 'Zaloguj się by zagrać'
+    },
+    PLAY_NOW: {
+      callback: () => {
+        void (async () => {
+          setIsCreatingGame(true);
+          await createGame();
+          setIsCreatingGame(false);
+        })();
+      },
+      text: 'Stwórz grę'
+    }
+  };
 
   useLayoutEffect(() => {
     const animation = gsap.context(() => {
@@ -90,6 +100,10 @@ export function Main() {
 
   const buttonOption = isLoggedIn ? BUTTON_OPTIONS.PLAY_NOW : BUTTON_OPTIONS.LOGIN;
 
+  if (isCreatingGame) {
+    return <LoadingPage text="Creating game..." />;
+  }
+
   return (
     <PageWrapper>
       <ContentWrapper ref={scope}>
@@ -101,10 +115,7 @@ export function Main() {
             wygrać? Rozpocznij rozgrywkę i przekonaj się!
           </div>
           <div>
-            <Button
-              variant="contained"
-              color="warning"
-              onClick={() => navigate(buttonOption.route)}>
+            <Button variant="contained" color="warning" onClick={buttonOption.callback}>
               {buttonOption.text}
             </Button>
           </div>

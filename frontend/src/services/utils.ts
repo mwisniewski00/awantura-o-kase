@@ -27,15 +27,15 @@ function isArrayApiError(error: unknown): error is ArrayApiError {
   );
 }
 
-function getAxiosErrorMessage(error: AxiosError) {
+function getAxiosErrorMessage(error: AxiosError): string {
   const errorData = error.response?.data;
   if (isArrayApiError(errorData)) {
     return errorData.map((e) => e.description).join(', ');
   }
-  return errorData;
+  return JSON.stringify(errorData);
 }
 
-export function getErrorMessage(error: unknown) {
+export function getErrorMessage(error: unknown): string {
   if (isAxiosError(error)) {
     return getAxiosErrorMessage(error);
   }

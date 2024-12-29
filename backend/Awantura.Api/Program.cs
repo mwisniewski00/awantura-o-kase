@@ -97,9 +97,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
     };
-});
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => { options.Cookie.HttpOnly = true; });
+    options.Events = new JwtBearerEvents
+    {
+        OnChallenge = context =>
+        {
+            context.HandleResponse();
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+            return context.Response.WriteAsync("{\"error\": \"Unauthorized\"}");
+        }
+    };
+});
 
 var CLIENT_URL = Environment.GetEnvironmentVariable("CLIENT_URL");
 builder.Services.AddCors(options =>
