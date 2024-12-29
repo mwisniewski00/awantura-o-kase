@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace Awantura.Domain.Entities
+﻿namespace Awantura.Domain.Entities
 {
     public class GameParticipants
     {

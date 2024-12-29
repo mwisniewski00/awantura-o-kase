@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Awantura.Api", "Awantura.Ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Awantura.Tests", "..\Awantura.Tests\Awantura.Tests.csproj", "{871A6297-DC19-4211-884F-95B4D662A693}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Awantura.Domain", "Awantura.Domain\Awantura.Domain.csproj", "{880D77B1-9E5A-449F-AFB4-44AF4A67136E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{871A6297-DC19-4211-884F-95B4D662A693}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{871A6297-DC19-4211-884F-95B4D662A693}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{871A6297-DC19-4211-884F-95B4D662A693}.Release|Any CPU.Build.0 = Release|Any CPU
+		{880D77B1-9E5A-449F-AFB4-44AF4A67136E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{880D77B1-9E5A-449F-AFB4-44AF4A67136E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{880D77B1-9E5A-449F-AFB4-44AF4A67136E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{880D77B1-9E5A-449F-AFB4-44AF4A67136E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Awantura.Infrastructure.Auth
+namespace Awantura.Infrastructure.Services.Auth
 {
     public class TokenRepository : ITokenRepository
     {

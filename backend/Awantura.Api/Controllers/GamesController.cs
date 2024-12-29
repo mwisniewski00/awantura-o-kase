@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
 using Awantura.Application.Interfaces;
 using Awantura.Application.Models.Auth;
-using Awantura.Infrastructure.Auth;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Awantura.Api.Controllers
@@ -34,14 +31,57 @@ namespace Awantura.Api.Controllers
             {
                 var refreshToken = await _tokenRepository.GetRefreshTokenAsync(jwt);
                 if (refreshToken == null)
-                {
                     return Forbid();
-                }
+
                 var user = await _userRepository.GetUserById(refreshToken.UserId);
                 var userDto = _mapper.Map<PlayerDto>(user);
 
-                var gameGuid = _gameRepository.CreateNewGame(userDto.Id);
+                var gameGuid = await _gameRepository.CreateNewGame(userDto.Id);
                 return Ok(gameGuid);
+            }
+
+            return Forbid();
+        }
+
+        [HttpPost("JoinGame/{gameId}")]
+        [Authorize(Roles = "Admin, Player")]
+        public async Task<IActionResult> JoinGame(Guid gameId)
+        {
+            if (Request.Cookies.TryGetValue("jwt", out string jwt))
+            {
+                var refreshToken = await _tokenRepository.GetRefreshTokenAsync(jwt);
+                if (refreshToken == null)
+                    return Forbid();
+
+                var user = await _userRepository.GetUserById(refreshToken.UserId);
+                var userDto = _mapper.Map<PlayerDto>(user);
+
+                var result = await _gameRepository.AddPlayerToGame(gameId, userDto.Id);
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Message);
+            }
+
+            return Forbid();
+        }
+
+        [HttpPost("StartGame/{gameId}")]
+        [Authorize(Roles = "Admin, Player")]
+        public async Task<IActionResult> StartGame(Guid gameId)
+        {
+            if (Request.Cookies.TryGetValue("jwt", out string jwt))
+            {
+                var refreshToken = await _tokenRepository.GetRefreshTokenAsync(jwt);
+                if (refreshToken == null)
+                    return Forbid();
+
+
+                var result = await _gameRepository.StartGame(gameId);
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Message);
             }
 
             return Forbid();

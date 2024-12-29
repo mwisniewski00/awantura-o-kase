@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace Awantura.Infrastructure.Auth
+namespace Awantura.Infrastructure.Services.Auth
 {
     public class UserRepository : IUserRepository
     {
