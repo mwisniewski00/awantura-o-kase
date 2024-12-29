@@ -7,7 +7,7 @@ namespace Awantura.Application.Interfaces
     {
         Task<List<IdentityUser>> GetAllUsers();
         Task<IdentityUser> GetUserById(string id);
-        Task<IdentityUser> UpdateUser(string id, UserDto UserBody);
+        Task<IdentityUser> UpdateUser(string id, PlayerDto UserBody);
         Task<IdentityUser> DeleteUser(string id);
     }
 }

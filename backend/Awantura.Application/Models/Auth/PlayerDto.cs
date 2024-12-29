@@ -1,6 +1,6 @@
 ﻿namespace Awantura.Application.Models.Auth
 {
-    public class UserDto
+    public class PlayerDto
     {
         public Guid Id { get; set; }
         public string UserName { get; set; }

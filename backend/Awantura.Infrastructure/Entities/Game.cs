@@ -7,5 +7,9 @@ namespace Awantura.Domain.Entities
         public Guid Id { get; set; }
         public GameState GameState { get; set; }
         public int Round {  get; set; }
+
+        public ICollection<PlayerGameScore> PlayerScores { get; set; }
+
+        public GameParticipants GameParticipants { get; set; }
     }
 }

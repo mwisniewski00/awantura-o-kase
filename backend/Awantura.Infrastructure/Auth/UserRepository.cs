@@ -30,7 +30,7 @@ namespace Awantura.Infrastructure.Auth
             return await _dbContext.Users.Where(e => e.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<IdentityUser> UpdateUser(string id, UserDto updatedUser)
+        public async Task<IdentityUser> UpdateUser(string id, PlayerDto updatedUser)
         {
             var existingUser = await _dbContext.Users
                .FirstOrDefaultAsync(x => x.Id == id);

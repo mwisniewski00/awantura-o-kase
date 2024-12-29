@@ -8,7 +8,7 @@ namespace Awantura.Application.Mappings
     {
         public AutoMapperProfiles()
         {
-            CreateMap<UserDto, IdentityUser>().ReverseMap();
+            CreateMap<PlayerDto, IdentityUser>().ReverseMap();
         }
     }
 }

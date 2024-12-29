@@ -29,12 +29,12 @@ namespace Awantura.Api.Controllers
             var usersDomain = await _userRepository.GetAllUsers();
             if (usersDomain == null)
                 return NotFound();
-            var usersWithRoles = new List<UserDto>();
+            var usersWithRoles = new List<PlayerDto>();
 
             foreach (var user in usersDomain)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                var userWithRoles = new UserDto
+                var userWithRoles = new PlayerDto
                 {
                     Id = Guid.Parse(user.Id),
                     UserName = user.UserName!,
@@ -56,7 +56,7 @@ namespace Awantura.Api.Controllers
                 return NotFound();
 
             var roles = await _userManager.GetRolesAsync(userDomain);
-            var userWithRoles = new UserDto
+            var userWithRoles = new PlayerDto
             {
                 Id = Guid.Parse(userDomain.Id),
                 UserName = userDomain.UserName!,
@@ -71,12 +71,12 @@ namespace Awantura.Api.Controllers
         [Authorize(Roles = "Admin, Player")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] UserUpdateDto updatedUser)
         {
-            var UserDomain = _mapper.Map<UserDto>(updatedUser);
+            var UserDomain = _mapper.Map<PlayerDto>(updatedUser);
             var UserIdentityUser = await _userRepository.UpdateUser(id, UserDomain);
             if (UserIdentityUser == null)
                 return NotFound();
 
-            var UserDto = _mapper.Map<UserDto>(UserIdentityUser);
+            var UserDto = _mapper.Map<PlayerDto>(UserIdentityUser);
             return Ok(UserDto);
         }
 

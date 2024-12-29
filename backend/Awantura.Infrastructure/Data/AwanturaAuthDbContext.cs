@@ -1,4 +1,5 @@
-﻿using Awantura.Infrastructure.Helpers;
+﻿using Awantura.Domain.Entities;
+using Awantura.Infrastructure.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,9 @@ namespace Awantura.Infrastructure.Data
         }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Game> Games { get; set; }
+        public DbSet<GameParticipants> GameParticipants { get; set; }
+        public DbSet<PlayerGameScore> PlayerGameScores { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -56,6 +60,21 @@ namespace Awantura.Infrastructure.Data
             modelBuilder.Entity<RefreshToken>()
                 .HasIndex(r => r.Token)
                 .IsUnique();
+
+            modelBuilder.Entity<PlayerGameScore>()
+                .HasKey(pgs => new { pgs.GameId, pgs.PlayerId });
+
+            modelBuilder.Entity<Game>()
+                .HasMany(g => g.PlayerScores)
+                .WithOne(pgs => pgs.Game)
+                .HasForeignKey(pgs => pgs.GameId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Game>()
+                .HasOne(g => g.GameParticipants)
+                .WithOne(gp => gp.Game)
+                .HasForeignKey<GameParticipants>(gp => gp.GameId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

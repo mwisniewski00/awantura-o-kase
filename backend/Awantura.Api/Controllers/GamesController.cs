@@ -38,7 +38,7 @@ namespace Awantura.Api.Controllers
                     return Forbid();
                 }
                 var user = await _userRepository.GetUserById(refreshToken.UserId);
-                var userDto = _mapper.Map<UserDto>(user);
+                var userDto = _mapper.Map<PlayerDto>(user);
 
                 var gameGuid = _gameRepository.CreateNewGame(userDto.Id);
                 return Ok(gameGuid);
