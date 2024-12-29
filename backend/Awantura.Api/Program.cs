@@ -1,8 +1,9 @@
+using Awantura.Application.Hubs;
 using Awantura.Application.Interfaces;
 using Awantura.Application.Mappings;
-using Awantura.Application.Services;
-using Awantura.Infrastructure.Auth;
 using Awantura.Infrastructure.Data;
+using Awantura.Infrastructure.Services;
+using Awantura.Infrastructure.Services.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -49,6 +50,9 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+// Add SignalR
+builder.Services.AddSignalR();
 
 //Add repositoires
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
@@ -103,7 +107,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: "AllowAll",
         builder =>
         {
-            builder.WithOrigins(CLIENT_URL)
+            builder.WithOrigins(CLIENT_URL) //local: SignlaR on port 5500, docker: ? TODO: add proper port
                    .AllowAnyHeader()
                    .AllowAnyMethod()
                    .AllowCredentials();
@@ -111,6 +115,9 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// SignalR Hubs
+app.MapHub<GameHub>("/gamehub");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,19 +1,23 @@
-﻿using Awantura.Application.Interfaces;
+﻿using Awantura.Application.Hubs;
+using Awantura.Application.Interfaces;
 using Awantura.Application.Models;
 using Awantura.Domain.Entities;
 using Awantura.Domain.Enums;
 using Awantura.Infrastructure.Data;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Awantura.Application.Services
+namespace Awantura.Infrastructure.Services
 {
     public class GameRepository : IGameRepository
     {
         private readonly AwanturaAuthDbContext _context;
+        private readonly IHubContext<GameHub> _hubContext;
 
-        public GameRepository(AwanturaAuthDbContext context)
+        public GameRepository(AwanturaAuthDbContext context, IHubContext<GameHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         public async Task<Guid> CreateNewGame(Guid playerId)
@@ -46,7 +50,6 @@ namespace Awantura.Application.Services
 
             _context.Games.Add(game);
             await _context.SaveChangesAsync();
-
             return gameId;
         }
 
@@ -89,6 +92,9 @@ namespace Awantura.Application.Services
             _context.PlayerGameScores.Add(playerGameScore);
 
             await _context.SaveChangesAsync();
+
+            await _hubContext.Clients.Group(gameId.ToString().ToLower()).SendAsync("PlayerJoined", playerId);
+
             return new CustomMessageResult
             {
                 Success = true,
@@ -126,6 +132,9 @@ namespace Awantura.Application.Services
             }
 
             await _context.SaveChangesAsync();
+
+            await _hubContext.Clients.Group(gameId.ToString().ToLower()).SendAsync("GameStarted", gameId);
+
             return new CustomMessageResult
             {
                 Success = true,
