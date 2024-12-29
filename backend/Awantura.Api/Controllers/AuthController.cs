@@ -4,6 +4,7 @@ using Awantura.Application.Models.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 
 namespace Awantura.Api.Controllers
 {
@@ -126,6 +127,19 @@ namespace Awantura.Api.Controllers
 
         private async Task<IActionResult> RegisterUserWithRole(RegisterRequestDto registerRequestDto, string role)
         {
+            if (!IsValidEmail(registerRequestDto.Email))
+                return BadRequest("Invalid email format.");
+
+            if (string.IsNullOrEmpty(registerRequestDto.UserName) || registerRequestDto.UserName.Length < 3)
+                return BadRequest("Username must be at least 3 characters long.");
+
+            if (string.IsNullOrEmpty(registerRequestDto.Password) || registerRequestDto.Password.Length < 6)
+                return BadRequest("Password must be at least 6 characters long.");
+
+            var existingUser = await _userManager.FindByEmailAsync(registerRequestDto.Email);
+            if (existingUser != null)
+                return BadRequest("Email is already in use.");
+
             var user = new IdentityUser
             {
                 UserName = registerRequestDto.UserName,
@@ -141,6 +155,12 @@ namespace Awantura.Api.Controllers
                 return BadRequest(identityResult.Errors);
 
             return Ok(user);
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            return emailRegex.IsMatch(email);
         }
 
         #endregion
