@@ -69,6 +69,16 @@ namespace Awantura.Infrastructure.Services
             }
 
             var participants = game.GameParticipants;
+
+            if (participants.BluePlayerId == playerId || participants.GreenPlayerId == playerId || participants.YellowPlayerId == playerId)
+            {
+                return new CustomMessageResult
+                {
+                    Success = false,
+                    Message = "Player is already in the game."
+                };
+            }
+
             if (participants.GreenPlayerId == Guid.Empty)
                 participants.GreenPlayerId = playerId;
             else if (participants.YellowPlayerId == Guid.Empty)
