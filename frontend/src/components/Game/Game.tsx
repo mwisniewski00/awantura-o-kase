@@ -9,6 +9,7 @@ import { Players } from './Players';
 import { GameContent } from './GameContent';
 import { GameProvider } from '../../providers/GameProvider';
 import { GameNotificationsProvider } from '../../providers/GameNotificationsProvider';
+import { GameSignalRContext } from '../../providers/GameSignalRContext';
 
 const GameContainer = styled.div`
   width: 100%;
@@ -42,17 +43,19 @@ export function Game() {
 
   return (
     <GameProvider>
-      <GameNotificationsProvider>
-        <GameContainer>
-          <GameHeader>
-            <Button endIcon={<ContentCopy />} onClick={onCopy}>
-              Kopiuj link gry
-            </Button>
-            <Players />
-          </GameHeader>
-          <GameContent />
-        </GameContainer>
-      </GameNotificationsProvider>
+      <GameSignalRContext>
+        <GameNotificationsProvider>
+          <GameContainer>
+            <GameHeader>
+              <Button endIcon={<ContentCopy />} onClick={onCopy}>
+                Kopiuj link gry
+              </Button>
+              <Players />
+            </GameHeader>
+            <GameContent />
+          </GameContainer>
+        </GameNotificationsProvider>
+      </GameSignalRContext>
     </GameProvider>
   );
 }

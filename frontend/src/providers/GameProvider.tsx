@@ -9,10 +9,11 @@ import React, {
 import { Game, GAME_STATE, GameApiResponse, PLAYER_COLOR } from '../types/game';
 import { LoadingPage } from '../components/Reusable/LoadingPage';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getErrorMessage } from '../services/utils';
 import { useErrorNotification } from '../hooks/useErrorNotification';
 import { UserResponse } from '../types/users';
+import { useJoinGame } from '../hooks/useJoingGame';
 
 interface GameContext {
   isLoading: boolean;
@@ -44,15 +45,18 @@ const getInitialMockedGame = () => ({
 
 export function GameProvider({ children }: PropsWithChildren<object>) {
   const [game, setGame] = useState<Game>(getInitialMockedGame());
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const axiosPrivate = useAxiosPrivate();
   const { id } = useParams();
   const notifyError = useErrorNotification();
+  const joinGame = useJoinGame();
+  const navigate = useNavigate();
 
   useEffect(() => {
     void (async () => {
       setIsLoading(true);
       try {
+        await joinGame();
         const { data } = await axiosPrivate.get<GameApiResponse>(`/Games/GetGame/${id}`);
         const playersDataRequests = Object.values(data.gameParticipants)
           .filter(Boolean)
@@ -80,15 +84,12 @@ export function GameProvider({ children }: PropsWithChildren<object>) {
         }));
       } catch (error) {
         notifyError(getErrorMessage(error));
+        navigate('/');
       } finally {
         setIsLoading(false);
       }
     })();
-  }, [axiosPrivate, id, notifyError]);
-
-  useEffect(() => {
-    console.log('game', game);
-  }, [game]);
+  }, [axiosPrivate, id, joinGame, navigate, notifyError]);
 
   const contextValue = useMemo(
     () => ({
@@ -101,7 +102,9 @@ export function GameProvider({ children }: PropsWithChildren<object>) {
 
   if (isLoading || !game) return <LoadingPage text="Loading game..." />;
 
-  return <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>;
+  return (
+      <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>
+  );
 }
 
 export function useGameContext() {

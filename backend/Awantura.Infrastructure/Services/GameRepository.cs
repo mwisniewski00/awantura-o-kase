@@ -3,6 +3,8 @@ using Awantura.Application.Interfaces;
 using Awantura.Domain.Entities;
 using Awantura.Domain.Enums;
 using Awantura.Domain.Models;
+using Awantura.Domain.Models.Auth;
+using Awantura.Domain.Models.SignalREvents;
 using Awantura.Infrastructure.Data;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +58,7 @@ namespace Awantura.Infrastructure.Services
             return gameId;
         }
 
-        public async Task<CustomMessageResult> AddPlayerToGame(Guid gameId, Guid playerId)
+        public async Task<CustomMessageResult> AddPlayerToGame(Guid gameId, PlayerDto player)
         {
             var game = await _context.Games
                 .Include(g => g.GameParticipants)
@@ -73,19 +75,19 @@ namespace Awantura.Infrastructure.Services
 
             var participants = game.GameParticipants;
 
-            if (participants.BluePlayerId == playerId || participants.GreenPlayerId == playerId || participants.YellowPlayerId == playerId)
+            if (participants.BluePlayerId == player.Id || participants.GreenPlayerId == player.Id || participants.YellowPlayerId == player.Id)
             {
                 return new CustomMessageResult
                 {
-                    Success = false,
+                    Success = true,
                     Message = "Player is already in the game."
                 };
             }
 
-            if (participants.GreenPlayerId == Guid.Empty)
-                participants.GreenPlayerId = playerId;
-            else if (participants.YellowPlayerId == Guid.Empty)
-                participants.YellowPlayerId = playerId;
+            if (participants.GreenPlayerId == null)
+                participants.GreenPlayerId = player.Id;
+            else if (participants.YellowPlayerId == null)
+                participants.YellowPlayerId = player.Id;
             else
             {
                 return new CustomMessageResult
@@ -98,7 +100,7 @@ namespace Awantura.Infrastructure.Services
             var playerGameScore = new PlayerGameScore
             {
                 GameId = gameId,
-                PlayerId = playerId,
+                PlayerId = player.Id,
                 CurrentPoints = 0
             };
 
@@ -106,7 +108,14 @@ namespace Awantura.Infrastructure.Services
 
             await _context.SaveChangesAsync();
 
-            await _hubContext.Clients.Group(gameId.ToString().ToLower()).SendAsync("PlayerJoined", playerId);
+            PlayerJoinedDto playerJoinedEvent = new PlayerJoinedDto
+            {
+                Id = player.Id,
+                Username = player.UserName,
+                PlayerColor = participants.GreenPlayerId == player.Id ? "green" : "blue"
+            };
+
+            await _hubContext.Clients.Group(gameId.ToString().ToLower()).SendAsync("PlayerJoined", playerJoinedEvent);
 
             return new CustomMessageResult
             {

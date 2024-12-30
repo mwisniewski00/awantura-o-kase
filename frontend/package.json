@@ -15,7 +15,9 @@
   "devDependencies": {
     "@eslint/js": "^9.13.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
+    "@types/js-cookie": "^3.0.6",
     "@types/react-dom": "^18.3.1",
+    "@types/uuid": "^10.0.0",
     "css-loader": "^7.1.2",
     "dotenv-webpack": "^8.1.0",
     "eslint": "^9.13.0",
@@ -37,6 +39,7 @@
     "@emotion/styled": "^11.13.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@microsoft/signalr": "^8.0.7",
     "@mui/icons-material": "^6.1.4",
     "@mui/lab": "^6.0.0-beta.15",
     "@mui/material": "^6.1.4",
@@ -47,6 +50,7 @@
     "react-custom-roulette": "^1.4.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.27.0",
+    "react-signalr": "^0.2.24",
     "styled-components": "^6.1.13"
   }
 }

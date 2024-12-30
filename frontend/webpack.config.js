@@ -88,10 +88,17 @@ module.exports = (env, argv) => {
       },
       proxy: [
         {
-          context: ["/api"],
+          context: ['/api'],
           target: 'http://drivers-api:8080',
           changeOrigin: true,
           secure: false
+        },
+        {
+          context: ['/gamehub'],
+          target: 'ws://drivers-api:8080',
+          changeOrigin: true,
+          secure: false,
+          ws: true
         }
       ],
       historyApiFallback: true

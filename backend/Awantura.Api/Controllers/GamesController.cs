@@ -53,7 +53,7 @@ namespace Awantura.Api.Controllers
             var user = await _userRepository.GetUserById(userId);
             var userDto = _mapper.Map<PlayerDto>(user);
 
-            var result = await _gameRepository.AddPlayerToGame(gameId, userDto.Id);
+            var result = await _gameRepository.AddPlayerToGame(gameId, userDto);
             if (!result.Success)
                 return BadRequest(result.Message);
 
