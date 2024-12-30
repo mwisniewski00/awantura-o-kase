@@ -88,13 +88,33 @@ namespace Awantura.Api.Controllers
             }
 
             var game = await _gameRepository.GetGame(gameId, userId);
-
             if (game == null)
             {
                 return NotFound();
             }
 
             return Ok(game);
+        }
+
+        [HttpPut("PlayerReady/{gameId}")]
+        [Authorize(Roles = "Admin, Player")]
+        public async Task<IActionResult> SetPlayerReady(Guid gameId)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Forbid();
+            }
+
+            var user = await _userRepository.GetUserById(userId);
+            var userDto = _mapper.Map<PlayerDto>(user);
+
+            var isReady = await _gameRepository.SetPlayerReady(gameId, userDto.Id);
+            if (isReady == false)
+                return BadRequest(isReady);
+            else
+                return Ok(isReady);
+
         }
     }
 }

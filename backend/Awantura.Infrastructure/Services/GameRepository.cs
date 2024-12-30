@@ -176,5 +176,28 @@ namespace Awantura.Infrastructure.Services
             // Player is not a participant of game
             return null;
         }
+
+        public async Task<bool> SetPlayerReady(Guid gameId, Guid playerId)
+        {
+            var game = await _context.Games
+                .Include(g => g.GameParticipants)
+                .FirstOrDefaultAsync(g => g.Id == gameId);
+
+            if (game == null)
+                return false;
+
+            if (game.GameParticipants.BluePlayerId == playerId)
+                game.GameParticipants.isBluePlayerReady = true;
+            else if (game.GameParticipants.GreenPlayerId == playerId)
+                game.GameParticipants.isGreenPlayerReady = true;
+            else if (game.GameParticipants.YellowPlayerId == playerId)
+                game.GameParticipants.isYellowPlayerReady = true;
+            else
+                return false;
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace Awantura.Application.Interfaces
         Task<CustomMessageResult> AddPlayerToGame(Guid gameId, Guid playerId);
         Task<CustomMessageResult> StartGame(Guid gameId);
         Task<Game> GetGame(Guid gameId, string playerId);
+        Task<bool> SetPlayerReady(Guid gameId, Guid playerId);
     }
 }
