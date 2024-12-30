@@ -1,8 +1,8 @@
 ﻿using Awantura.Application.Hubs;
 using Awantura.Application.Interfaces;
-using Awantura.Application.Models;
 using Awantura.Domain.Entities;
 using Awantura.Domain.Enums;
+using Awantura.Domain.Models;
 using Awantura.Infrastructure.Data;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -42,8 +42,11 @@ namespace Awantura.Infrastructure.Services
                 {
                     Id = Guid.NewGuid(),
                     BluePlayerId = playerId,
+                    isBluePlayerReady = false,
                     GreenPlayerId = null,
+                    isGreenPlayerReady = false,
                     YellowPlayerId = null,
+                    isYellowPlayerReady = false,
                     GameId = gameId
                 }
             };

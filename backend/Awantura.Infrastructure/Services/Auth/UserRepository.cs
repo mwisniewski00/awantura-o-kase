@@ -1,5 +1,5 @@
 ﻿using Awantura.Application.Interfaces;
-using Awantura.Application.Models.Auth;
+using Awantura.Domain.Models.Auth;
 using Awantura.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

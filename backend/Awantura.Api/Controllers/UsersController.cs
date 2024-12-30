@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Awantura.Application.Interfaces;
-using Awantura.Application.Models.Auth;
+using Awantura.Domain.Models.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
