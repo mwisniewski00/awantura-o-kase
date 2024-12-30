@@ -1,4 +1,4 @@
-﻿using Awantura.Application.Models.Auth;
+﻿using Awantura.Domain.Models.Auth;
 using Microsoft.AspNetCore.Identity;
 
 namespace Awantura.Application.Interfaces

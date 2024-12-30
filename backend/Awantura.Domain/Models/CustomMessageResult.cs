@@ -1,4 +1,4 @@
-﻿namespace Awantura.Application.Models
+﻿namespace Awantura.Domain.Models
 {
     public class CustomMessageResult
     {

@@ -1,5 +1,5 @@
-﻿using Awantura.Application.Models;
-using Awantura.Domain.Entities;
+﻿using Awantura.Domain.Entities;
+using Awantura.Domain.Models;
 
 namespace Awantura.Application.Interfaces
 {

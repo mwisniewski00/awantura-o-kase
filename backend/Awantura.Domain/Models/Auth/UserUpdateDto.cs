@@ -1,8 +1,7 @@
-﻿namespace Awantura.Application.Models.Auth
+﻿namespace Awantura.Domain.Models.Auth
 {
-    public class PlayerDto
+    public class UserUpdateDto
     {
-        public Guid Id { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }
         public List<string> Roles { get; set; }

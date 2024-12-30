@@ -1,4 +1,4 @@
-﻿namespace Awantura.Application.Models.Auth
+﻿namespace Awantura.Domain.Models.Auth
 {
     public class LoginResponseDto
     {

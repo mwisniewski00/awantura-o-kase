@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Awantura.Application.Models.Auth
+namespace Awantura.Domain.Models.Auth
 {
     public class RegisterRequestDto
     {
