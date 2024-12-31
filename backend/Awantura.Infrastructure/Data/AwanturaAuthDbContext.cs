@@ -20,6 +20,7 @@ namespace Awantura.Infrastructure.Data
         public DbSet<Game> Games { get; set; }
         public DbSet<GameParticipants> GameParticipants { get; set; }
         public DbSet<PlayerGameScore> PlayerGameScores { get; set; }
+        public DbSet<Question> Questions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -75,6 +76,11 @@ namespace Awantura.Infrastructure.Data
                 .WithOne(gp => gp.Game)
                 .HasForeignKey<GameParticipants>(gp => gp.GameId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Question>()
+                .HasKey(q => q.Id);
+
+            QuestionSeeder.SeedQuestions(modelBuilder);
         }
     }
 }
