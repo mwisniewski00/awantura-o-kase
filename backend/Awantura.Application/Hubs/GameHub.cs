@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Awantura.Application.Hubs
 {
+    [Authorize]
     public sealed class GameHub : Hub
     {
+        [Authorize(Roles = "Admin, Player")]
         public async Task NotifyBackend(Guid gameId)
         {
             // Example endpoint that can be use by front to notify backend
@@ -14,6 +17,7 @@ namespace Awantura.Application.Hubs
             await Clients.Group(gameId.ToString()).SendAsync("SystemMessage", "Request served by backend");
         }
 
+        [Authorize(Roles = "Admin, Player")]
         public async Task JoinGameGroup(string gameId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, gameId.ToLower());

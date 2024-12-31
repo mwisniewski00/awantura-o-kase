@@ -84,9 +84,9 @@ namespace Awantura.Infrastructure.Services
                 };
             }
 
-            if (participants.GreenPlayerId == null)
+            if (participants.GreenPlayerId == Guid.Empty)
                 participants.GreenPlayerId = player.Id;
-            else if (participants.YellowPlayerId == null)
+            else if (participants.YellowPlayerId == Guid.Empty)
                 participants.YellowPlayerId = player.Id;
             else
             {

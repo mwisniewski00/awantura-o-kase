@@ -18,7 +18,7 @@
     <script>
         const gameId = "E11653E5-AEFC-4CC8-A462-B7828BD36CA0"; // Create game and then use it to connect to game's messages
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("https://localhost:7096/gamehub") // URL where your SignalR Hub is mapped
+            .withUrl("https://localhost:7096/gamehub?access_token=[token_placeholder]") // localStorage.getItem("authToken") 
             .build();
         
         // Start the SignalR connection
@@ -37,7 +37,7 @@
                 });
 
             // This can be used to notify backend, but we probably use just endpoints most of the times
-            connection.invoke("NotifyBackend", gameId).catch(err => console.error("Error invoking TestConnection", err));
+            connection.invoke("NotifyBackend", gameId).catch(err => console.error("Error invoking NotifyBackend", err));
         })
         .catch(err => {
             displayMessage("Failed to connect to SignalR hub.");
