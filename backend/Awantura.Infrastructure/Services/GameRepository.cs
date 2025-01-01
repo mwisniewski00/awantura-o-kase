@@ -187,7 +187,7 @@ namespace Awantura.Infrastructure.Services
 
             var currentQuestion = game.Questions.ElementAtOrDefault(game.Round - 1);
 
-            if (game.GameState == GameState.CATEGORY_DRAW)
+            if (game.GameState == GameState.NotStarted)
             {
                 return new GameInfoDto
                 {
@@ -195,6 +195,18 @@ namespace Awantura.Infrastructure.Services
                     Round = game.Round,
                     GameState = game.GameState,
                     Category = null,
+                    Question = null,
+                    Answers = null
+                };
+            }
+            else if (game.GameState == GameState.CATEGORY_DRAW)
+            {
+                return new GameInfoDto
+                {
+                    Id = game.Id,
+                    Round = game.Round,
+                    GameState = game.GameState,
+                    Category = currentQuestion.Category,
                     Question = null,
                     Answers = null
                 };
