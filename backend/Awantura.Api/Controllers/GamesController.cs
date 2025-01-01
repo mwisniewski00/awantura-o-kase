@@ -87,13 +87,13 @@ namespace Awantura.Api.Controllers
                 return Forbid();
             }
 
-            var game = await _gameRepository.GetGame(gameId, userId);
-            if (game == null)
+            var gameInfo = await _gameRepository.GetGame(gameId, userId);
+            if (gameInfo == null)
             {
                 return NotFound();
             }
 
-            return Ok(game);
+            return Ok(gameInfo);
         }
 
         [HttpPut("PlayerReady/{gameId}")]

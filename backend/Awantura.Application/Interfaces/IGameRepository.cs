@@ -1,6 +1,6 @@
-﻿using Awantura.Domain.Entities;
-using Awantura.Domain.Models;
+﻿using Awantura.Domain.Models;
 using Awantura.Domain.Models.Auth;
+using Awantura.Domain.Models.Dtos;
 
 namespace Awantura.Application.Interfaces
 {
@@ -9,7 +9,8 @@ namespace Awantura.Application.Interfaces
         Task<Guid> CreateNewGame(Guid playerId);
         Task<CustomMessageResult> AddPlayerToGame(Guid gameId, PlayerDto playerId);
         Task<CustomMessageResult> StartGame(Guid gameId);
-        Task<Game> GetGame(Guid gameId, string playerId);
+        Task<GameInfoDto?> GetGame(Guid gameId, string playerId);
         Task<bool> SetPlayerReady(Guid gameId, Guid playerId);
+        Task ProgressGameState(Guid gameId);
     }
 }

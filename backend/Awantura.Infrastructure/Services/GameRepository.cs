@@ -4,7 +4,7 @@ using Awantura.Domain.Entities;
 using Awantura.Domain.Enums;
 using Awantura.Domain.Models;
 using Awantura.Domain.Models.Auth;
-using Awantura.Domain.Models.SignalREvents;
+using Awantura.Domain.Models.Dtos;
 using Awantura.Infrastructure.Data;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -25,12 +25,17 @@ namespace Awantura.Infrastructure.Services
         public async Task<Guid> CreateNewGame(Guid playerId)
         {
             var gameId = Guid.NewGuid();
+            var questions = await _context.Questions
+                .OrderBy(q => Guid.NewGuid())
+                .Take(7)
+                .ToListAsync();
 
             var game = new Game
             {
                 Id = gameId,
                 GameState = GameState.NotStarted,
                 Round = 0,
+                Questions = questions,
                 PlayerScores = new List<PlayerGameScore>
                 {
                     new PlayerGameScore
@@ -84,9 +89,9 @@ namespace Awantura.Infrastructure.Services
                 };
             }
 
-            if (participants.GreenPlayerId == Guid.Empty)
+            if (participants.GreenPlayerId == null)
                 participants.GreenPlayerId = player.Id;
-            else if (participants.YellowPlayerId == Guid.Empty)
+            else if (participants.YellowPlayerId == null)
                 participants.YellowPlayerId = player.Id;
             else
             {
@@ -164,26 +169,62 @@ namespace Awantura.Infrastructure.Services
             };
         }
 
-        public async Task<Game> GetGame(Guid gameId, string playerId)
+        public async Task<GameInfoDto> GetGame(Guid gameId, string playerId)
         {
-            var game = await _context.Games.Include(g => g.GameParticipants)
-               .FirstOrDefaultAsync(g => g.Id == gameId);
+            var game = await _context.Games
+                .Include(g => g.GameParticipants)
+                .Include(g => g.Questions)
+                .FirstOrDefaultAsync(g => g.Id == gameId);
 
             if (game == null)
-            {
                 return null;
-            }
 
             var participants = game.GameParticipants;
             var playerGuid = new Guid(playerId);
 
-            if (participants.BluePlayerId == playerGuid || participants.GreenPlayerId == playerGuid || participants.YellowPlayerId == playerGuid)
+            if (participants.BluePlayerId != playerGuid && participants.GreenPlayerId != playerGuid && participants.YellowPlayerId != playerGuid)
+                return null;
+
+            var currentQuestion = game.Questions.ElementAtOrDefault(game.Round - 1);
+
+            if (game.GameState == GameState.CATEGORY_DRAW)
             {
-                return game;
+                return new GameInfoDto
+                {
+                    Id = game.Id,
+                    Round = game.Round,
+                    GameState = game.GameState,
+                    Category = null,
+                    Question = null,
+                    Answers = null
+                };
+            }
+            else if (game.GameState == GameState.BIDDING)
+            {
+                return new GameInfoDto
+                {
+                    Id = game.Id,
+                    Round = game.Round,
+                    GameState = game.GameState,
+                    Category = currentQuestion.Category,
+                    Question = null,
+                    Answers = null
+                };
+            }
+            else if(game.GameState == GameState.QUESTION)
+            {
+                return new GameInfoDto
+                {
+                    Id = game.Id,
+                    Round = game.Round,
+                    GameState = game.GameState,
+                    Category = currentQuestion.Category,
+                    Question = currentQuestion.QuestionText,
+                    Answers = currentQuestion.Answers.Split(";").ToList()
+                };
             }
 
-            // Player is not a participant of game
-            return null;
+            throw new ArgumentException("Wrong Game State!");
         }
 
         public async Task<bool> SetPlayerReady(Guid gameId, Guid playerId)
@@ -207,6 +248,33 @@ namespace Awantura.Infrastructure.Services
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task ProgressGameState(Guid gameId)
+        {
+            var game = await _context.Games
+                .Include(g => g.GameParticipants)
+                .FirstOrDefaultAsync(g => g.Id == gameId);
+
+            if (game == null)
+                return;
+
+            if (game.GameState == GameState.QUESTION)
+            {
+                if (game.Round == 7)
+                    game.GameState = GameState.FINISHED;
+                else
+                {
+                    game.Round++;
+                    game.GameState = GameState.CATEGORY_DRAW;
+                }
+            }
+            else
+            {
+                game.GameState++;
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

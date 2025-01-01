@@ -80,6 +80,10 @@ namespace Awantura.Infrastructure.Data
             modelBuilder.Entity<Question>()
                 .HasKey(q => q.Id);
 
+            modelBuilder.Entity<Game>()
+                .HasMany(g => g.Questions)
+                .WithMany();
+
             QuestionSeeder.SeedQuestions(modelBuilder);
         }
     }

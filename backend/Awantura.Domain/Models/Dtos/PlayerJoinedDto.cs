@@ -1,4 +1,4 @@
-namespace Awantura.Domain.Models.SignalREvents
+namespace Awantura.Domain.Models.Dtos
 {
     public class PlayerJoinedDto
     {
