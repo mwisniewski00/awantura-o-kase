@@ -11,6 +11,7 @@ import { useAuth } from '../../providers/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { useErrorNotification } from '../../hooks/useErrorNotification';
 import { getErrorMessage } from '../../services/utils';
+import { ROUTES } from '../Navigation/constants';
 
 const ACTION_LABEL = 'Login';
 const FIELDS = [FormInput.EMAIL, FormInput.PASSWORD];
@@ -58,7 +59,7 @@ export function SignInForm() {
       <Typography sx={{ textAlign: 'center' }}>
         Don&apos;t have an account?{' '}
         <span>
-          <Link href="/sign-up" variant="body2" sx={{ alignSelf: 'center' }}>
+          <Link onClick={() => navigate(ROUTES.SIGN_UP)} variant="body2" sx={{ alignSelf: 'center' }}>
             Create account
           </Link>
         </span>

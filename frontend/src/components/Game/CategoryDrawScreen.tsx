@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Wheel } from 'react-custom-roulette';
 import { QUESTION_CATEGORIES, QUESTION_CATEGORY } from '../../types/game';
 import { WheelData } from 'react-custom-roulette/dist/components/Wheel/types';
+import { CATEGORIES_NAMES } from '../Navigation/constants';
 
 const WheelContainer = styled.div`
   display: flex;
@@ -14,7 +15,7 @@ const WheelContainer = styled.div`
 `;
 
 const WHEEL_OPTIONS: WheelData[] = QUESTION_CATEGORIES.map((category) => ({
-  option: category
+  option: CATEGORIES_NAMES[category]
 }));
 
 interface CategoryDrawScreen {
@@ -24,7 +25,7 @@ interface CategoryDrawScreen {
 
 export function CategoryDrawScreen({ onStopSpinning, category }: CategoryDrawScreen) {
   const [startSpinnig, setStartSpinning] = useState(false);
-  const categoryIndex = WHEEL_OPTIONS.findIndex(({ option }) => option === category);
+  const categoryIndex = WHEEL_OPTIONS.findIndex(({ option }) => option == CATEGORIES_NAMES[category]);
   const isMounted = useRef(true);
 
   // Otherwise onStopSpinning callback will be called, even when component is already unomunted :/

@@ -60,23 +60,6 @@ namespace Awantura.Api.Controllers
             return Ok(result.Message);
         }
 
-        [HttpPost("StartGame/{gameId}")]
-        [Authorize(Roles = "Admin, Player")]
-        public async Task<IActionResult> StartGame(Guid gameId)
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null)
-            {
-                return Forbid();
-            }
-
-            var result = await _gameRepository.StartGame(gameId);
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            return Ok(result.Message);
-        }
-
         [HttpGet("GetGame/{gameId}")]
         [Authorize(Roles = "Admin, Player")]
         public async Task<IActionResult> GetGame(Guid gameId)

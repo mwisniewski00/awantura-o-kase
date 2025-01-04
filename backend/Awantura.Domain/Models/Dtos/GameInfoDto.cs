@@ -1,4 +1,5 @@
-﻿using Awantura.Domain.Enums;
+﻿using Awantura.Domain.Entities;
+using Awantura.Domain.Enums;
 
 namespace Awantura.Domain.Models.Dtos
 {
@@ -10,5 +11,7 @@ namespace Awantura.Domain.Models.Dtos
         public Category? Category { get; set; }
         public string? Question { get; set; }
         public List<string>? Answers { get; set; }
+
+        public required GameParticipants GameParticipants { get; set; }
     }
 }

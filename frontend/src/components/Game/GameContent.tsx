@@ -31,7 +31,7 @@ const GAME_STATE_TO_CONTROLS_SCREEN_MAPPING: Record<GAME_STATE, GAME_CONTROLS_SC
 };
 
 export function GameContent() {
-  const [isSpinningDone, setIsSpinningDone] = useState(true);
+  const [isSpinningDone, setIsSpinningDone] = useState(false);
   const { game } = useGameContext();
 
   if (!game) return;

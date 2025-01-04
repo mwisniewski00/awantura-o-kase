@@ -47,18 +47,18 @@ export interface Game {
     timestamp: number;
     amount: number;
   };
-  questions: Record<number, Question>;
+  currentQuestion?: Question;
 }
 
 export enum QUESTION_CATEGORY {
-  GEOGRAPHY = 'Geografia',
-  ASTRONOMY = 'Astronomia',
-  BIOLOGY = 'Biologia',
-  CHEMISTRY = 'Chemia',
-  POLISH_CINEMA = 'Film polski',
-  FOOTBALL = 'Piłka nożna',
-  FISHING = 'Wędkarstwo',
-  POLITICS = 'Polityka'
+  GEOGRAPHY,
+  ASTRONOMY,
+  BIOLOGY,
+  CHEMISTRY,
+  POLISH_CINEMA,
+  FOOTBALL,
+  FISHING,
+  POLITICS
 }
 
 export const QUESTION_CATEGORIES: QUESTION_CATEGORY[] = [
@@ -97,6 +97,12 @@ export interface GameApiResponse {
     bluePlayerId: string;
     greenPlayerId?: string;
     yellowPlayerId?: string;
+    isBluePlayerReady: boolean;
+    isGreenPlayerReady: boolean;
+    isYellowPlayerReady: boolean;
   };
   gameState: GAME_STATE;
+  category: QUESTION_CATEGORY | null;
+  question: string | null;
+  answers: string[] | null;
 }

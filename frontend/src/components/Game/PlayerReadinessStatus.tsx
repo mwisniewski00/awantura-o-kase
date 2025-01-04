@@ -6,6 +6,9 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import { Button, ButtonOwnProps } from '@mui/material';
 import styled from 'styled-components';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import { useErrorNotification } from '../../hooks/useErrorNotification';
+import { getErrorMessage } from '../../services/utils';
 
 interface PlayerReadinessStatusProps {
   player: Player;
@@ -38,22 +41,25 @@ export function PlayerReadinessStatus({
   playerColor,
   isSpinningDone
 }: PlayerReadinessStatusProps) {
-  const { game, setGame } = useGameContext();
+  const { game } = useGameContext();
   const {
     auth: { id }
   } = useAuth();
-
-  const onButtonClick = () =>
-    setGame((game) => ({
-      ...game,
-      playersReadiness: {
-        ...(game.playersReadiness ?? {}),
-        [player.id]: true
-      }
-    }));
+  const axiosPrivate = useAxiosPrivate();
+  const notifyError = useErrorNotification();
 
   const isPlayerCurrentUser = id === player.id;
   const isPlayerReady = game.playersReadiness?.[player.id];
+
+  const onReadyClick = () =>
+    void (async () => {
+      try {
+        await axiosPrivate.put(`/Games/PlayerReady/${game.id}`);
+      } catch (error) {
+        console.error(error);
+        notifyError('Failed to set readiness. ' + getErrorMessage(error));
+      }
+    })();
 
   if (!isPlayerCurrentUser) {
     return isPlayerReady ? SuccessIcon : WaitIcon;
@@ -65,7 +71,7 @@ export function PlayerReadinessStatus({
         <Button
           variant="contained"
           color={PLAYER_COLOR_TO_BUTTON_COLOR_MAPPING[playerColor]}
-          onClick={onButtonClick}
+          onClick={onReadyClick}
           disabled={!isSpinningDone}>
           Gotowy!
         </Button>

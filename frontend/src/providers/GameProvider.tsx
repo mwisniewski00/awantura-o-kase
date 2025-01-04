@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState
 } from 'react';
-import { Game, GAME_STATE, GameApiResponse, PLAYER_COLOR } from '../types/game';
+import { Game, GAME_STATE, GameApiResponse, PLAYER_COLOR, Question } from '../types/game';
 import { LoadingPage } from '../components/Reusable/LoadingPage';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -61,6 +61,15 @@ export function GameProvider({ children }: PropsWithChildren<object>) {
         const playersDataRequests = Object.values(data.gameParticipants)
           .filter(Boolean)
           .map((playerId) => axiosPrivate.get<UserResponse>(`/Users/${playerId}`));
+        const playerReadiness = {
+          [data.gameParticipants.bluePlayerId]: data.gameParticipants.isBluePlayerReady,
+          ...(data.gameParticipants.greenPlayerId
+            ? { [data.gameParticipants.greenPlayerId]: data.gameParticipants.isGreenPlayerReady }
+            : {}),
+          ...(data.gameParticipants.yellowPlayerId
+            ? { [data.gameParticipants.yellowPlayerId]: data.gameParticipants.isYellowPlayerReady }
+            : {})
+        };
         const playersData = (await Promise.all(playersDataRequests)).map(({ data }) => data);
         const players = Object.fromEntries(
           [PLAYER_COLOR.BLUE, PLAYER_COLOR.GREEN, PLAYER_COLOR.YELLOW]
@@ -75,14 +84,23 @@ export function GameProvider({ children }: PropsWithChildren<object>) {
             ])
             .filter((entry) => entry[1])
         ) as Game['players'];
+        const currentCategory = data.category ?? undefined;
+        const currentQuestions: Question | undefined =
+          data.question && data.answers
+            ? { question: data.question, answers: data.answers }
+            : undefined;
         setGame((game) => ({
           ...game,
           id: data.id,
           state: data.gameState,
           currentRoundNumber: data.round,
-          players
+          players,
+          playerReadiness,
+          currentCategory,
+          currentQuestions
         }));
       } catch (error) {
+        console.error(error);
         notifyError(getErrorMessage(error));
         navigate('/');
       } finally {
@@ -102,9 +120,7 @@ export function GameProvider({ children }: PropsWithChildren<object>) {
 
   if (isLoading || !game) return <LoadingPage text="Loading game..." />;
 
-  return (
-      <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>
-  );
+  return <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>;
 }
 
 export function useGameContext() {

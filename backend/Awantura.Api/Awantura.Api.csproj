@@ -25,4 +25,10 @@
     <ProjectReference Include="..\Awantura.Infrastructure\Awantura.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="questions.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+</ItemGroup>
+
 </Project>

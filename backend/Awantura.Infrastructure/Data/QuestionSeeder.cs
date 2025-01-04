@@ -11,10 +11,7 @@ namespace Awantura.Infrastructure.Data
         public static void SeedQuestions(ModelBuilder modelBuilder)
         {
             var questions = new List<Question>();
-
-            string projectRootDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..");
-            projectRootDirectory = Path.GetFullPath(projectRootDirectory);
-            string filePath = Path.Combine(projectRootDirectory, "Awantura.Infrastructure", "Data", "questions.csv");
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "questions.csv");
             var random = new Random();
 
             using (var reader = new StreamReader(filePath, Encoding.UTF8))
@@ -22,7 +19,7 @@ namespace Awantura.Infrastructure.Data
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
-                    if (string.IsNullOrWhiteSpace(line)) 
+                    if (string.IsNullOrWhiteSpace(line))
                         continue;
                     var values = line.Split(";");
                     var question = new Question

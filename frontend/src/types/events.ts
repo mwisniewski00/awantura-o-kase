@@ -1,7 +1,10 @@
-import { PLAYER_COLOR } from './game';
+import { PLAYER_COLOR, QUESTION_CATEGORY } from './game';
 
 export enum GameUpdateEvent {
-  PlayerJoined = 'PlayerJoined'
+  PlayerJoined = 'PlayerJoined',
+  RoundStarted = 'RoundStarted',
+  PlayerReady = 'PlayerReady',
+  AllPlayersReady = 'AllPlayersReady'
 }
 
 export enum InvokeEvents {
@@ -13,3 +16,10 @@ export interface PlayerJoinedMessage {
   username: string;
   playerColor: PLAYER_COLOR;
 }
+
+export interface RoundStartedEvent {
+  roundNumber: number;
+  category: QUESTION_CATEGORY;
+}
+
+export type PlayerReadyEvent = PLAYER_COLOR;

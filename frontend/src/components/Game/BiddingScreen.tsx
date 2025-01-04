@@ -3,11 +3,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { useGameContext } from '../../providers/GameProvider';
 import { BiddingCell } from './BiddingCell';
-import { GAME_STATE, PLAYER_COLOR, Question } from '../../types/game';
+import { GAME_STATE, PLAYER_COLOR } from '../../types/game';
 import { AccountBalanceCell } from './AccountBalanceCell';
 import { BiddingControls } from './BiddingControls';
 import { AnnouncementBanner } from '../Reusable/AnnouncmentBanner';
 import { Timer } from './Timer';
+import { CATEGORIES_NAMES } from '../Navigation/constants';
 
 const SectionHeader = styled(Paper)`
   width: 100%;
@@ -63,51 +64,6 @@ const TimerCellsContainer = styled.div`
   flex-direction: column;
 `;
 
-const MOCKED_QUESTION_1: Question = {
-  question: 'Jak nazywa się najjaśniejsza gwiazda na nocnym niebie?',
-  answers: ['Betelgeza', 'Syriusz', 'Aldebaran', 'Polaris']
-};
-
-const MOCKED_QUESTION_2: Question = {
-  question: 'Które z poniższych miast jest stolicą Kanady?',
-  answers: ['Toronto', 'Ottawa', 'Vancouver', 'Montreal']
-};
-
-const MOCKED_QUESTION_3: Question = {
-  question: 'Który z poniższych organów odpowiada za filtrowanie krwi w ludzkim ciele?',
-  answers: ['Wątroba', 'Nerki', 'Żołądek', 'Płuca']
-};
-
-const MOCKED_QUESTION_4: Question = {
-  question: "Który pierwiastek chemiczny ma symbol 'Au'?",
-  answers: ['Srebro', 'Żelazo', 'Złoto', 'Amelinum']
-};
-
-const MOCKED_QUESTION_5: Question = {
-  question: 'Który z poniższych gatunków ryb jest typowo uznawany za drapieżnika?',
-  answers: ['Karaś', 'Pstrąg', 'Leszcz', 'Karp']
-};
-
-const MOCKED_QUESTION_6: Question = {
-  question: 'Która reprezentacja narodowa wygrała Mistrzostwa Świata w Piłce Nożnej w 2018 roku?',
-  answers: ['Niemcy', 'Brazylia', 'Francja', 'Argentyna']
-};
-
-const MOCKED_QUESTION_7: Question = {
-  question: "Kto jest reżyserem filmu 'Człowiek z marmuru'?",
-  answers: ['Roman Polański', 'Andrzej Wajda', 'Krzysztof Kieślowski', 'Agnieszka Holland']
-};
-
-const QUESTIONS = [
-  MOCKED_QUESTION_1,
-  MOCKED_QUESTION_2,
-  MOCKED_QUESTION_3,
-  MOCKED_QUESTION_4,
-  MOCKED_QUESTION_5,
-  MOCKED_QUESTION_6,
-  MOCKED_QUESTION_7
-];
-
 export function BiddingScreen() {
   const {
     game: { players, pool, currentCategory, currentRoundNumber, lastBid },
@@ -118,17 +74,13 @@ export function BiddingScreen() {
     setGame((game) => ({
       ...game,
       state: GAME_STATE.QUESTION,
-      currentBiddings: {},
-      questions: {
-        ...game.questions,
-        [currentRoundNumber]: QUESTIONS[currentRoundNumber - 1]
-      }
+      currentBiddings: {}
     }));
 
   return (
     <BiddinScreenContainer>
       <AnnouncementBanner show elevation={8}>
-        Kategoria: {currentCategory}
+        Kategoria: {CATEGORIES_NAMES[currentCategory!]}
       </AnnouncementBanner>
       <BiddingSectionContainer>
         <SectionHeader>Licytacja</SectionHeader>

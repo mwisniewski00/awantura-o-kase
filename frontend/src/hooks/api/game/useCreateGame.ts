@@ -13,6 +13,7 @@ export function useCreateGame() {
       const { data } = await axiosPrivate.post('/Games/CreateGame');
       navigate(`game/${data}`);
     } catch (error) {
+      console.error(error);
       const message = getErrorMessage(error);
       showErrorFlag(message);
     }

@@ -59,7 +59,7 @@ const MOCKED_ANSWERS_PER_ROUND: Record<number, number> = {
 
 export function QuestionControls() {
   const {
-    game: { questions, currentRoundNumber, lastBid, players, accountBalances },
+    game: { currentQuestion, currentRoundNumber, lastBid, players, accountBalances },
     setGame
   } = useGameContext();
   const {
@@ -67,10 +67,11 @@ export function QuestionControls() {
   } = useAuth();
   const { showNotification } = useGameNotifications();
 
-  const { answers } = questions[currentRoundNumber];
+  const { answers } = currentQuestion!;
 
   const isPlayerVoting = id === lastBid?.playerId;
   const [answeringPlayerColor] =
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     Object.entries(players).find(([_, player]) => player.id === lastBid?.playerId) ?? [];
 
   const onAnswerClick = (answerIndex: number) => {

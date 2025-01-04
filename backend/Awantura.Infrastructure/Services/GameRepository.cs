@@ -67,6 +67,7 @@ namespace Awantura.Infrastructure.Services
         {
             var game = await _context.Games
                 .Include(g => g.GameParticipants)
+                .Include(g => g.Questions)
                 .FirstOrDefaultAsync(g => g.Id == gameId);
 
             if (game == null)
@@ -111,61 +112,40 @@ namespace Awantura.Infrastructure.Services
 
             _context.PlayerGameScores.Add(playerGameScore);
 
+            var isStartingGame = player.Id == participants.YellowPlayerId;
+            if (isStartingGame)
+            {
+                game.Round++;
+                game.GameState = GameState.CATEGORY_DRAW;
+            }
+
             await _context.SaveChangesAsync();
 
             PlayerJoinedDto playerJoinedEvent = new PlayerJoinedDto
             {
                 Id = player.Id,
                 Username = player.UserName,
-                PlayerColor = participants.GreenPlayerId == player.Id ? "green" : "blue"
+                PlayerColor = participants.GreenPlayerId == player.Id ? "green" : "yellow"
             };
 
-            await _hubContext.Clients.Group(gameId.ToString().ToLower()).SendAsync("PlayerJoined", playerJoinedEvent);
+            var signalRGroup = _hubContext.Clients.Group(gameId.ToString().ToLower());
+            await signalRGroup.SendAsync("PlayerJoined", playerJoinedEvent);
+
+            if (isStartingGame)
+            {
+                var currentQuestion = game.Questions.ElementAtOrDefault(game.Round - 1);
+                RoundStartedDto roundStartedDto = new RoundStartedDto
+                {
+                    RoundNumber = game.Round,
+                    Category = currentQuestion.Category
+                };
+                await signalRGroup.SendAsync("RoundStarted", roundStartedDto);
+            }
 
             return new CustomMessageResult
             {
                 Success = true,
                 Message = "Player added to the game successfully."
-            };
-        }
-
-        public async Task<CustomMessageResult> StartGame(Guid gameId)
-        {
-            var game = await _context.Games
-               .FirstOrDefaultAsync(g => g.Id == gameId);
-
-            if (game == null)
-            {
-                return new CustomMessageResult
-                {
-                    Success = false,
-                    Message = "Game guid is incorrect, it doesn't exsist."
-                };
-            }
-
-
-            if (game.GameState == GameState.NotStarted)
-            {
-                game.GameState = GameState.CATEGORY_DRAW;
-                game.Round = 1;
-            }
-            else
-            {
-                return new CustomMessageResult
-                {
-                    Success = false,
-                    Message = "Game have already started!"
-                };
-            }
-
-            await _context.SaveChangesAsync();
-
-            await _hubContext.Clients.Group(gameId.ToString().ToLower()).SendAsync("GameStarted", gameId);
-
-            return new CustomMessageResult
-            {
-                Success = true,
-                Message = $"Game {game.Id} started!"
             };
         }
 
@@ -196,7 +176,8 @@ namespace Awantura.Infrastructure.Services
                     GameState = game.GameState,
                     Category = null,
                     Question = null,
-                    Answers = null
+                    Answers = null,
+                    GameParticipants = game.GameParticipants
                 };
             }
             else if (game.GameState == GameState.CATEGORY_DRAW)
@@ -208,7 +189,8 @@ namespace Awantura.Infrastructure.Services
                     GameState = game.GameState,
                     Category = currentQuestion.Category,
                     Question = null,
-                    Answers = null
+                    Answers = null,
+                    GameParticipants = game.GameParticipants
                 };
             }
             else if (game.GameState == GameState.BIDDING)
@@ -220,10 +202,11 @@ namespace Awantura.Infrastructure.Services
                     GameState = game.GameState,
                     Category = currentQuestion.Category,
                     Question = null,
-                    Answers = null
+                    Answers = null,
+                    GameParticipants = game.GameParticipants
                 };
             }
-            else if(game.GameState == GameState.QUESTION)
+            else if (game.GameState == GameState.QUESTION)
             {
                 return new GameInfoDto
                 {
@@ -232,7 +215,8 @@ namespace Awantura.Infrastructure.Services
                     GameState = game.GameState,
                     Category = currentQuestion.Category,
                     Question = currentQuestion.QuestionText,
-                    Answers = currentQuestion.Answers.Split(";").ToList()
+                    Answers = currentQuestion.Answers.Split(";").ToList(),
+                    GameParticipants = game.GameParticipants
                 };
             }
 
@@ -257,8 +241,19 @@ namespace Awantura.Infrastructure.Services
             else
                 return false;
 
+            var areAllPlayersReady = game.GameParticipants.isBluePlayerReady && game.GameParticipants.isGreenPlayerReady && game.GameParticipants.isYellowPlayerReady;
+            if (areAllPlayersReady)
+            {
+                game.GameState = GameState.BIDDING;
+            }
             await _context.SaveChangesAsync();
 
+            var signalRGroup = _hubContext.Clients.Group(gameId.ToString().ToLower());
+            await signalRGroup.SendAsync("PlayerReady", playerId);
+            if (areAllPlayersReady)
+            {
+                await signalRGroup.SendAsync("AllPlayersReady");
+            }
             return true;
         }
 

@@ -1,11 +1,11 @@
-import { Button } from '@mui/material';
 import React from 'react';
 import styled from 'styled-components';
 import { useGameContext } from '../../providers/GameProvider';
-import { GAME_STATE, PLAYER_COLOR } from '../../types/game';
+import { PLAYER_COLOR } from '../../types/game';
 import { PLAYER_CSS_COLORS } from '../../utils/styles';
 import { PlayerReadinessStatus } from './PlayerReadinessStatus';
 import { AnnouncementBanner } from '../Reusable/AnnouncmentBanner';
+import { CATEGORIES_NAMES } from '../Navigation/constants';
 
 const Container = styled.div`
   height: 100%;
@@ -57,27 +57,13 @@ interface CategoryDrawConfirm {
   setIsSpinningDone: (isDone: boolean) => void;
 }
 
-export function CategoryDrawConfirm({ isSpinningDone, setIsSpinningDone }: CategoryDrawConfirm) {
-  const { game, setGame } = useGameContext();
-
-  const onContinueClick = () => {
-    setIsSpinningDone(false);
-    setGame((game) => ({
-      ...game,
-      state: GAME_STATE.BIDDING,
-      playersReadiness: {
-        ...(game.playersReadiness ?? {}),
-        [game.players[PLAYER_COLOR.BLUE].id]: true,
-        [game.players[PLAYER_COLOR.GREEN]?.id ?? '']: true,
-        [game.players[PLAYER_COLOR.YELLOW]?.id ?? '']: true
-      }
-    }));
-  };
+export function CategoryDrawConfirm({ isSpinningDone }: CategoryDrawConfirm) {
+  const { game } = useGameContext();
 
   return (
     <Container>
       <AnnouncementBanner show={isSpinningDone} elevation={8}>
-        Kategoria: {game.currentCategory}
+        Kategoria: {CATEGORIES_NAMES[game.currentCategory!]}
       </AnnouncementBanner>
       <PlayerReadinessControlsContainer>
         {Object.entries(game.players).map(([playerColor, player]) => (
@@ -95,9 +81,6 @@ export function CategoryDrawConfirm({ isSpinningDone, setIsSpinningDone }: Categ
           </PlayerReadinessCard>
         ))}
       </PlayerReadinessControlsContainer>
-      <Button variant="contained" onClick={onContinueClick}>
-        Kontynuuj
-      </Button>
     </Container>
   );
 }

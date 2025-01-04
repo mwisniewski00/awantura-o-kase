@@ -4,10 +4,8 @@ import { KrzychuScreen } from './KrzychuScreen';
 
 export function QuestionTvScreen() {
   const {
-    game: { questions, currentRoundNumber }
+    game: { currentQuestion }
   } = useGameContext();
 
-  const currentQuestion = questions[currentRoundNumber];
-
-  return <KrzychuScreen text={currentQuestion.question} />;
+  return <KrzychuScreen text={currentQuestion!.question} />;
 }
