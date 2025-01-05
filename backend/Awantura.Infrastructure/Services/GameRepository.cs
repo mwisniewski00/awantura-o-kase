@@ -34,6 +34,7 @@ namespace Awantura.Infrastructure.Services
             {
                 Id = gameId,
                 GameState = GameState.NotStarted,
+                Pool = 0,
                 Round = 0,
                 Questions = questions,
                 PlayerScores = new List<PlayerGameScore>
@@ -42,7 +43,8 @@ namespace Awantura.Infrastructure.Services
                     {
                         GameId = gameId,
                         PlayerId = playerId,
-                        CurrentPoints = 0
+                        Points = 0,
+                        Balance = 10000
                     }
                 },
                 GameParticipants = new GameParticipants
@@ -107,7 +109,8 @@ namespace Awantura.Infrastructure.Services
             {
                 GameId = gameId,
                 PlayerId = player.Id,
-                CurrentPoints = 0
+                Points = 0,
+                Balance = 10000
             };
 
             _context.PlayerGameScores.Add(playerGameScore);
