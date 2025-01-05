@@ -248,6 +248,20 @@ namespace Awantura.Infrastructure.Services
             if (areAllPlayersReady)
             {
                 game.GameState = GameState.BIDDING;
+
+                //Add funds to game pool
+                foreach (var playerScore in game.PlayerScores)
+                {
+                    if (playerScore.Balance >= 500)
+                    {
+                        playerScore.Balance -= 500;
+                        game.Pool += 500;
+                    }
+                    else
+                    {
+                        //What we want to do when they can't put money to the pool? Player puts all the available funds? TBD!
+                    }
+                }
             }
             await _context.SaveChangesAsync();
 
@@ -260,7 +274,7 @@ namespace Awantura.Infrastructure.Services
             return true;
         }
 
-        public async Task ProgressGameState(Guid gameId)
+        /*public async Task ProgressGameState(Guid gameId)
         {
             var game = await _context.Games
                 .Include(g => g.GameParticipants)
@@ -285,6 +299,6 @@ namespace Awantura.Infrastructure.Services
             }
 
             await _context.SaveChangesAsync();
-        }
+        }*/
     }
 }

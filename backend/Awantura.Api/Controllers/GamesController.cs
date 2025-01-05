@@ -12,15 +12,13 @@ namespace Awantura.Api.Controllers
     public class GamesController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        private readonly ITokenRepository _tokenRepository;
         private readonly IGameRepository _gameRepository;
         private readonly IMapper _mapper;
 
-        public GamesController(IUserRepository userRepository, IGameRepository gameRepository, ITokenRepository tokenRepository, IMapper mapper)
+        public GamesController(IUserRepository userRepository, IGameRepository gameRepository, IMapper mapper)
         {
             _userRepository = userRepository;
             _gameRepository = gameRepository;
-            _tokenRepository = tokenRepository;
             _mapper = mapper;
         }
 

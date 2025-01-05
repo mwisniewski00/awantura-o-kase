@@ -4,8 +4,7 @@
     {
         public Guid GameId { get; set; }
         public Guid PlayerId { get; set; }
-        public Guid QuestionId { get; set; }
-        public int OfferValue { get; set; }
-        public DateTime BidTime { get; set; }
+        public int Amount { get; set; }
+        public DateTime TimeStamp { get; set; }
     }
 }

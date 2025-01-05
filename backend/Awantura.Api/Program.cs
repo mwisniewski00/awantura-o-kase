@@ -58,6 +58,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddScoped<IBidRepository, BidRepository>();
 
 // Add db context
 builder.Services.AddDbContext<AwanturaAuthDbContext>();

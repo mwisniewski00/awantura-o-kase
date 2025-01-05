@@ -21,6 +21,7 @@ namespace Awantura.Infrastructure.Data
         public DbSet<GameParticipants> GameParticipants { get; set; }
         public DbSet<PlayerGameScore> PlayerGameScores { get; set; }
         public DbSet<Question> Questions { get; set; }
+        public DbSet<Bid> Bids { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -83,6 +84,15 @@ namespace Awantura.Infrastructure.Data
             modelBuilder.Entity<Game>()
                 .HasMany(g => g.Questions)
                 .WithMany();
+
+            modelBuilder.Entity<Bid>()
+                .HasKey(b => new { b.GameId, b.PlayerId, b.TimeStamp });
+
+            modelBuilder.Entity<Bid>()
+                .HasOne<Game>()
+                .WithMany()
+                .HasForeignKey(b => b.GameId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             QuestionSeeder.SeedQuestions(modelBuilder);
         }

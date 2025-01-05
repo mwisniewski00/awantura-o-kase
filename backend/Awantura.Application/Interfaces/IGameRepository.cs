@@ -10,6 +10,5 @@ namespace Awantura.Application.Interfaces
         Task<CustomMessageResult> AddPlayerToGame(Guid gameId, PlayerDto playerId);
         Task<GameInfoDto?> GetGame(Guid gameId, string playerId);
         Task<bool> SetPlayerReady(Guid gameId, Guid playerId);
-        Task ProgressGameState(Guid gameId);
     }
 }
