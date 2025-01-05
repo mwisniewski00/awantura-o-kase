@@ -259,7 +259,8 @@ namespace Awantura.Infrastructure.Services
                     }
                     else
                     {
-                        //What we want to do when they can't put money to the pool? Player puts all the available funds? TBD!
+                        game.Pool += playerScore.Balance;
+                        playerScore.Balance = 0;
                     }
                 }
             }
