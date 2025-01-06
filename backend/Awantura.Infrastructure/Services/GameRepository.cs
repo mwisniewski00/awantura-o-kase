@@ -157,6 +157,7 @@ namespace Awantura.Infrastructure.Services
             var game = await _context.Games
                 .Include(g => g.GameParticipants)
                 .Include(g => g.Questions)
+                .Include(g => g.PlayerScores)
                 .FirstOrDefaultAsync(g => g.Id == gameId);
 
             if (game == null)
@@ -170,6 +171,8 @@ namespace Awantura.Infrastructure.Services
 
             var currentQuestion = game.Questions.ElementAtOrDefault(game.Round - 1);
 
+            var gameBids = await GetGameBids(gameId);
+
             if (game.GameState == GameState.NotStarted)
             {
                 return new GameInfoDto
@@ -180,7 +183,10 @@ namespace Awantura.Infrastructure.Services
                     Category = null,
                     Question = null,
                     Answers = null,
-                    GameParticipants = game.GameParticipants
+                    GameParticipants = game.GameParticipants,
+                    Pool = game.Pool,
+                    PlayerGameScores = game.PlayerScores.ToList(),
+                    Bids = gameBids
                 };
             }
             else if (game.GameState == GameState.CATEGORY_DRAW)
@@ -193,7 +199,10 @@ namespace Awantura.Infrastructure.Services
                     Category = currentQuestion.Category,
                     Question = null,
                     Answers = null,
-                    GameParticipants = game.GameParticipants
+                    GameParticipants = game.GameParticipants,
+                    Pool = game.Pool,
+                    PlayerGameScores = game.PlayerScores.ToList(),
+                    Bids = gameBids
                 };
             }
             else if (game.GameState == GameState.BIDDING)
@@ -206,7 +215,10 @@ namespace Awantura.Infrastructure.Services
                     Category = currentQuestion.Category,
                     Question = null,
                     Answers = null,
-                    GameParticipants = game.GameParticipants
+                    GameParticipants = game.GameParticipants,
+                    Pool = game.Pool,
+                    PlayerGameScores = game.PlayerScores.ToList(),
+                    Bids = gameBids
                 };
             }
             else if (game.GameState == GameState.QUESTION)
@@ -219,7 +231,10 @@ namespace Awantura.Infrastructure.Services
                     Category = currentQuestion.Category,
                     Question = currentQuestion.QuestionText,
                     Answers = currentQuestion.Answers.Split(";").ToList(),
-                    GameParticipants = game.GameParticipants
+                    GameParticipants = game.GameParticipants,
+                    Pool = game.Pool,
+                    PlayerGameScores = game.PlayerScores.ToList(),
+                    Bids = gameBids
                 };
             }
 
@@ -230,6 +245,7 @@ namespace Awantura.Infrastructure.Services
         {
             var game = await _context.Games
                 .Include(g => g.GameParticipants)
+                .Include(g => g.PlayerScores)
                 .FirstOrDefaultAsync(g => g.Id == gameId);
 
             if (game == null)
@@ -245,6 +261,7 @@ namespace Awantura.Infrastructure.Services
                 return false;
 
             var areAllPlayersReady = game.GameParticipants.isBluePlayerReady && game.GameParticipants.isGreenPlayerReady && game.GameParticipants.isYellowPlayerReady;
+            var newRoundBids = new List<Bid>();
             if (areAllPlayersReady)
             {
                 game.GameState = GameState.BIDDING;
@@ -252,16 +269,18 @@ namespace Awantura.Infrastructure.Services
                 //Add funds to game pool
                 foreach (var playerScore in game.PlayerScores)
                 {
-                    if (playerScore.Balance >= 500)
+                    var amountToBid = playerScore.Balance >= 500 ? 500 : playerScore.Balance;
+                    playerScore.Balance -= amountToBid;
+                    game.Pool += amountToBid;
+                    var newBid = new Bid
                     {
-                        playerScore.Balance -= 500;
-                        game.Pool += 500;
-                    }
-                    else
-                    {
-                        game.Pool += playerScore.Balance;
-                        playerScore.Balance = 0;
-                    }
+                        GameId = gameId,
+                        PlayerId = playerScore.PlayerId,
+                        Amount = amountToBid,
+                        TimeStamp = DateTime.UtcNow
+                    };
+                    _context.Bids.Add(newBid);
+                    newRoundBids.Add(newBid);
                 }
             }
             await _context.SaveChangesAsync();
@@ -270,7 +289,13 @@ namespace Awantura.Infrastructure.Services
             await signalRGroup.SendAsync("PlayerReady", playerId);
             if (areAllPlayersReady)
             {
-                await signalRGroup.SendAsync("AllPlayersReady");
+                var StartBiddingEventDto = new StartBiddingEventDto
+                {
+                    Pool = game.Pool,
+                    PlayerGameScores = game.PlayerScores.ToList(),
+                    Bids = newRoundBids
+                };
+                await signalRGroup.SendAsync("StartBidding", StartBiddingEventDto);
             }
             return true;
         }
@@ -301,5 +326,17 @@ namespace Awantura.Infrastructure.Services
 
             await _context.SaveChangesAsync();
         }*/
+
+        #region Helper methods
+
+        private async Task<List<Bid>> GetGameBids(Guid gameId)
+        {
+            return await _context.Bids
+                .Where(b => b.GameId == gameId)
+                .OrderByDescending(b => b.Amount)
+                .ToListAsync();
+        }
+
+        #endregion
     }
 }

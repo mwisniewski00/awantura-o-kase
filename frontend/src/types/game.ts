@@ -90,6 +90,17 @@ export enum GAME_CONTROLS_SCREEN {
   MOCKED_PROGRESS = 'MOCKED_PROGRESS'
 }
 
+export interface PlayerGameScore {
+  balance: number;
+  playerId: string;
+}
+
+export interface Bid {
+  playerId: string;
+  amount: number;
+  timeStamp: string;
+}
+
 export interface GameApiResponse {
   id: string;
   round: number;
@@ -105,4 +116,7 @@ export interface GameApiResponse {
   category: QUESTION_CATEGORY | null;
   question: string | null;
   answers: string[] | null;
+  pool: number;
+  playerGameScores: Array<PlayerGameScore>;
+  bids: Array<Bid>;
 }

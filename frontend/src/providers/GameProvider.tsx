@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState
 } from 'react';
-import { Game, GAME_STATE, GameApiResponse, PLAYER_COLOR, Question } from '../types/game';
+import { Game, GameApiResponse, GAME_STATE, PLAYER_COLOR, Question } from '../types/game';
 import { LoadingPage } from '../components/Reusable/LoadingPage';
 import useAxiosPrivate from '../hooks/useAxiosPrivate';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -24,22 +24,18 @@ interface GameContext {
 const GameContext = createContext<GameContext | null>(null);
 
 const getInitialMockedGame = () => ({
-  id: '123',
+  id: '',
   players: {
     blue: {
-      id: '123',
-      username: 'BlueWarrior'
+      id: '',
+      username: ''
     }
   },
   state: GAME_STATE.NOT_STARTED,
-  pool: 1500,
-  currentBiddings: {
-    '123': 500
-  },
-  accountBalances: {
-    '123': 9500
-  },
-  currentRoundNumber: 1,
+  pool: 0,
+  currentBiddings: {},
+  accountBalances: {},
+  currentRoundNumber: 0,
   questions: {}
 });
 
@@ -58,7 +54,10 @@ export function GameProvider({ children }: PropsWithChildren<object>) {
       try {
         await joinGame();
         const { data } = await axiosPrivate.get<GameApiResponse>(`/Games/GetGame/${id}`);
-        const playersDataRequests = Object.values(data.gameParticipants)
+        const playersDataRequests = Object.entries(data.gameParticipants)
+          .filter(([key]) => ['bluePlayerId', 'greenPlayerId', 'yellowPlayerId'].includes(key))
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          .map(([_, value]) => value)
           .filter(Boolean)
           .map((playerId) => axiosPrivate.get<UserResponse>(`/Users/${playerId}`));
         const playerReadiness = {
@@ -89,15 +88,42 @@ export function GameProvider({ children }: PropsWithChildren<object>) {
           data.question && data.answers
             ? { question: data.question, answers: data.answers }
             : undefined;
+        const accountBalances = Object.fromEntries(
+          data.playerGameScores.map((playerGameScore) => [
+            playerGameScore.playerId,
+            playerGameScore.balance
+          ])
+        );
+        const currentBiddings = Object.fromEntries(
+          data.bids.map((bid) => [bid.playerId, bid.amount])
+        );
+        const lastBid = data.bids
+          .filter((bid) => bid.amount > 500)
+          .toSorted((b) => new Date(b.timeStamp).getTime())[0];
+        const currentQuestion =
+          data.answers && data.question
+            ? { question: data.question, answers: data.answers }
+            : undefined;
         setGame((game) => ({
-          ...game,
+          ...game!,
           id: data.id,
           state: data.gameState,
           currentRoundNumber: data.round,
           players,
           playerReadiness,
           currentCategory,
-          currentQuestions
+          currentQuestions,
+          pool: data.pool,
+          accountBalances,
+          currentBiddings,
+          currentQuestion,
+          lastBid: lastBid
+            ? {
+                amount: lastBid.amount,
+                timestamp: new Date(lastBid.timeStamp).getTime(),
+                playerId: lastBid.playerId
+              }
+            : undefined
         }));
       } catch (error) {
         console.error(error);
@@ -111,7 +137,7 @@ export function GameProvider({ children }: PropsWithChildren<object>) {
 
   const contextValue = useMemo(
     () => ({
-      game,
+      game: game,
       isLoading,
       setGame
     }),

@@ -3,12 +3,16 @@ import React from 'react';
 import styled from 'styled-components';
 import { useGameContext } from '../../providers/GameProvider';
 import { BiddingCell } from './BiddingCell';
-import { GAME_STATE, PLAYER_COLOR } from '../../types/game';
+import { PLAYER_COLOR } from '../../types/game';
 import { AccountBalanceCell } from './AccountBalanceCell';
 import { BiddingControls } from './BiddingControls';
 import { AnnouncementBanner } from '../Reusable/AnnouncmentBanner';
 import { Timer } from './Timer';
 import { CATEGORIES_NAMES } from '../Navigation/constants';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import { useAuth } from '../../providers/AuthProvider';
+import { useErrorNotification } from '../../hooks/useErrorNotification';
+import { getErrorMessage } from '../../services/utils';
 
 const SectionHeader = styled(Paper)`
   width: 100%;
@@ -66,16 +70,24 @@ const TimerCellsContainer = styled.div`
 
 export function BiddingScreen() {
   const {
-    game: { players, pool, currentCategory, currentRoundNumber, lastBid },
-    setGame
+    game: { players, pool, currentCategory, currentRoundNumber, lastBid, id: gameId }
   } = useGameContext();
+  const axiosPrivate = useAxiosPrivate();
+  const {
+    auth: { id }
+  } = useAuth();
+  const notifyError = useErrorNotification();
 
   const onTimeEnd = () =>
-    setGame((game) => ({
-      ...game,
-      state: GAME_STATE.QUESTION,
-      currentBiddings: {}
-    }));
+    void (async () => {
+      if (id !== lastBid?.playerId) return;
+      try {
+        await axiosPrivate.post(`/Bids/EndBidding/${gameId}`);
+      } catch (error) {
+        console.error(error);
+        notifyError(getErrorMessage(error));
+      }
+    })();
 
   return (
     <BiddinScreenContainer>

@@ -3,6 +3,7 @@ using Awantura.Application.Interfaces;
 using Awantura.Domain.Entities;
 using Awantura.Domain.Enums;
 using Awantura.Domain.Models;
+using Awantura.Domain.Models.Dtos;
 using Awantura.Infrastructure.Data;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,12 @@ namespace Awantura.Infrastructure.Services
                 return CreateErrorResult("Insufficient funds to make this bid.");
 
             var highestBid = await GetHighestBid(gameId);
+
+            if (IsBiddingTimePassed(highestBid))
+            {
+                return CreateErrorResult("Too late! Time for bidding have passed.");
+            };
+
             var highestBidAmount = 0;
             if (highestBid != null)
                 highestBidAmount = highestBid.Amount;
@@ -47,17 +54,39 @@ namespace Awantura.Infrastructure.Services
             if (!IsBidHigherThanCurrentHighest(bidAmount, highestBidAmount))
                 return CreateErrorResult("Bid amount must be higher than the current highest bid.");
 
+            var currentUserBid = await GetCurrentUserBid(gameId, playerId);
+            var currentUserBidAmount = 0;
+            if (currentUserBid != null)
+            {
+                currentUserBidAmount = currentUserBid.Amount;
+                _context.Bids.Remove(currentUserBid);
+            }
+
             var bid = CreateNewBid(gameId, playerId, bidAmount);
             _context.Bids.Add(bid);
 
+            var bidIncrease = bidAmount - currentUserBidAmount;
+            game.Pool += bidIncrease;
+            playerScore.Balance -= bidIncrease;
+
             await _context.SaveChangesAsync();
 
+            var signalRGroup = _hubContext.Clients.Group(gameId.ToString().ToLower());
+            var bidDoneEventDto = new BidDoneEventDto
+            {
+                PlayerId = playerId,
+                NewAccountBalance = playerScore.Balance,
+                NewPool = game.Pool,
+                Timestamp = bid.TimeStamp,
+                Amount = bid.Amount
+            };
+            await signalRGroup.SendAsync("BidDone", bidDoneEventDto);
             return CreateSuccessResult($"Bid placed successfully: Player: {playerId}, Offer: {bidAmount}");
         }
 
         public async Task<CustomMessageResult> EndBidding(Guid gameId)
         {
-            var game = await GetGame(gameId);
+            var game = await GetGameWithQuestions(gameId);
             if (game == null)
                 return CreateErrorResult("Game not found.");
 
@@ -65,7 +94,7 @@ namespace Awantura.Infrastructure.Services
                 return CreateErrorResult("Bidding phase is not active.");
 
             var lastBid = await GetLastBid(gameId);
-            if (!CanEndBidding(lastBid))
+            if (!IsBiddingTimePassed(lastBid))
                 return CreateErrorResult("Bidding phase cannot be ended. Less than 10 seconds since the last bid.");
 
             var highestBid = await GetHighestBid(gameId);
@@ -74,14 +103,17 @@ namespace Awantura.Infrastructure.Services
             if (highestBidder == null)
                 return CreateErrorResult("Coudn't find the highest bidder.");
 
-            highestBidder.Balance -= highestBid.Amount;
-            game.Pool += highestBid.Amount;
-
-            CleanBidsForGame(gameId);
-
             game.GameState = GameState.QUESTION;
-
             await _context.SaveChangesAsync();
+
+            var currentQuestion = game.Questions.ElementAtOrDefault(game.Round - 1);
+            var biddingEndEventDto = new BiddingEndEventDto
+            {
+                QuestionText = currentQuestion.QuestionText,
+                Answers = currentQuestion.Answers.Split(";").ToList()
+            };
+            var signalRGroup = _hubContext.Clients.Group(gameId.ToString().ToLower());
+            await signalRGroup.SendAsync("BiddingEnd", biddingEndEventDto);
 
             return new CustomMessageResult
             {
@@ -98,6 +130,15 @@ namespace Awantura.Infrastructure.Services
             return await _context.Games
                 .Include(g => g.PlayerScores)
                 .Include(g => g.GameParticipants)
+                .FirstOrDefaultAsync(g => g.Id == gameId);
+        }
+
+        private async Task<Game?> GetGameWithQuestions(Guid gameId)
+        {
+            return await _context.Games
+                .Include(g => g.PlayerScores)
+                .Include(g => g.GameParticipants)
+                .Include(g => g.Questions)
                 .FirstOrDefaultAsync(g => g.Id == gameId);
         }
 
@@ -122,11 +163,10 @@ namespace Awantura.Infrastructure.Services
                 .FirstOrDefaultAsync();
         }
 
-        private async Task<Bid?> GetHighestBidA(Guid gameId)
+        private async Task<Bid?> GetCurrentUserBid(Guid gameId, Guid playerId)
         {
             return await _context.Bids
-                .Where(b => b.GameId == gameId)
-                .OrderByDescending(b => b.Amount)
+                .Where(b => b.GameId == gameId && b.PlayerId == playerId)
                 .FirstOrDefaultAsync();
         }
 
@@ -150,7 +190,7 @@ namespace Awantura.Infrastructure.Services
             return bidAmount > highestBidAmount;
         }
 
-        private bool CanEndBidding(Bid? lastBid)
+        private bool IsBiddingTimePassed(Bid? lastBid)
         {
             return lastBid != null && (DateTime.UtcNow - lastBid.TimeStamp).TotalSeconds > 10;
         }

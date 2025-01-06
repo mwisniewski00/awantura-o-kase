@@ -7,6 +7,10 @@ import { NumberInput } from '../Reusable/NumberInput';
 import { PLAYER_COLOR_TO_BUTTON_COLOR_MAPPING } from './PlayerReadinessStatus';
 import { PLAYER_COLOR } from '../../types/game';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import { LoadingButton } from '@mui/lab';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import { useErrorNotification } from '../../hooks/useErrorNotification';
+import { getErrorMessage } from '../../services/utils';
 
 interface BiddingControlsProps {
   playerId: string;
@@ -46,13 +50,15 @@ const OutOfMoneyContainer = styled.div`
 
 export function BiddingControls({ playerId, playerColor }: BiddingControlsProps) {
   const [amountToBid, setAmountToBid] = useState(600);
+  const [isMakingBidLoading, setIsMakingBidLoading] = useState(false);
+  const axiosPrivate = useAxiosPrivate();
+  const notifyError = useErrorNotification();
   const {
     auth: { id }
   } = useAuth();
 
   const {
-    game: { accountBalances, lastBid, currentBiddings },
-    setGame
+    game: { accountBalances, lastBid, currentBiddings, id: gameId }
   } = useGameContext();
 
   const currentUserAccountBalance = accountBalances[playerId];
@@ -62,25 +68,17 @@ export function BiddingControls({ playerId, playerColor }: BiddingControlsProps)
   useEffect(() => setAmountToBid(lastBidAmount + 100), [lastBidAmount]);
 
   const onBidClick = () => {
-    const newAccountBalance = currentUserAccountBalance + currentUserBid - amountToBid;
-    setGame((game) => ({
-      ...game,
-      pool: game.pool + (amountToBid - currentUserBid),
-      accountBalances: {
-        ...game.accountBalances,
-        [playerId]: newAccountBalance
-      },
-      currentBiddings: {
-        ...game.currentBiddings,
-        [playerId]: amountToBid
-      },
-      lastBid: {
-        playerId,
-        timestamp: Date.now(),
-        amount: amountToBid
+    void (async () => {
+      setIsMakingBidLoading(true);
+      try {
+        await axiosPrivate.post(`/Bids/MakeBid/${gameId}/${amountToBid}`);
+      } catch (error) {
+        console.error(error);
+        notifyError(getErrorMessage(error));
+      } finally {
+        setIsMakingBidLoading(false);
       }
-    }));
-    setAmountToBid(amountToBid + 100);
+    })();
   };
 
   if (id !== playerId) return <BiddingControlsContainer />;
@@ -102,7 +100,10 @@ export function BiddingControls({ playerId, playerColor }: BiddingControlsProps)
         {QUICK_ADD_OPTIONS.map((option) => (
           <Button
             key={option}
-            disabled={option + amountToBid > currentUserAccountBalance + currentUserBid}
+            disabled={
+              option + amountToBid > currentUserAccountBalance + currentUserBid ||
+              isMakingBidLoading
+            }
             variant="outlined"
             onClick={() => setAmountToBid((amount) => amount + option)}>
             +{option}
@@ -110,6 +111,7 @@ export function BiddingControls({ playerId, playerColor }: BiddingControlsProps)
         ))}
         <Button
           variant="outlined"
+          disabled={isMakingBidLoading}
           onClick={() => setAmountToBid(currentUserAccountBalance + currentUserBid)}>
           Va Banque!
         </Button>
@@ -119,14 +121,16 @@ export function BiddingControls({ playerId, playerColor }: BiddingControlsProps)
         max={currentUserAccountBalance + currentUserBid}
         value={amountToBid}
         step={100}
+        disabled={isMakingBidLoading}
         onChange={(_, value) => value !== null && setAmountToBid(value)}
       />
-      <Button
+      <LoadingButton
         variant="contained"
         color={PLAYER_COLOR_TO_BUTTON_COLOR_MAPPING[playerColor]}
+        loading={isMakingBidLoading}
         onClick={onBidClick}>
         Licytuj ({amountToBid})
-      </Button>
+      </LoadingButton>
     </BiddingControlsContainer>
   );
 }

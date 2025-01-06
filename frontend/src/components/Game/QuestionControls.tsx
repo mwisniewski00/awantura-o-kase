@@ -69,12 +69,13 @@ export function QuestionControls() {
 
   const { answers } = currentQuestion!;
 
-  const isPlayerVoting = id === lastBid?.playerId;
+  const isPlayerAnswering = id === lastBid?.playerId;
   const [answeringPlayerColor] =
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     Object.entries(players).find(([_, player]) => player.id === lastBid?.playerId) ?? [];
 
   const onAnswerClick = (answerIndex: number) => {
+    if (!isPlayerAnswering) return;
     const newPoolAddition =
       Object.values(accountBalances).filter((balance) => balance >= 500).length * 500;
     if (MOCKED_ANSWERS_PER_ROUND[currentRoundNumber] === answerIndex) {
@@ -123,7 +124,7 @@ export function QuestionControls() {
           <QuestionContainer
             key={answer}
             elevation={5}
-            isChoosable={isPlayerVoting}
+            isChoosable={isPlayerAnswering}
             onClick={() => onAnswerClick(index)}>
             {indexToLetter(index)}. {answer}
           </QuestionContainer>

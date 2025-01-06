@@ -1,10 +1,12 @@
-import { PLAYER_COLOR, QUESTION_CATEGORY } from './game';
+import { Bid, PLAYER_COLOR, PlayerGameScore, QUESTION_CATEGORY } from './game';
 
 export enum GameUpdateEvent {
   PlayerJoined = 'PlayerJoined',
   RoundStarted = 'RoundStarted',
   PlayerReady = 'PlayerReady',
-  AllPlayersReady = 'AllPlayersReady'
+  StartBidding = 'StartBidding',
+  BidDone = 'BidDone',
+  BiddingEnd = 'BiddingEnd'
 }
 
 export enum InvokeEvents {
@@ -23,3 +25,22 @@ export interface RoundStartedEvent {
 }
 
 export type PlayerReadyEvent = PLAYER_COLOR;
+
+export interface StartBiddingEvent {
+  pool: number;
+  playerGameScores: Array<PlayerGameScore>;
+  bids: Array<Bid>;
+}
+
+export interface BidDoneEvent {
+  newPool: number;
+  newAccountBalance: number;
+  playerId: string;
+  timestamp: string;
+  amount: number;
+}
+
+export interface BiddingEndEvent {
+  questionText: string;
+  answers: string[];
+}
