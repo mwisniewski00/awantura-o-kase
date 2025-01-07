@@ -25,7 +25,9 @@ interface CategoryDrawScreen {
 
 export function CategoryDrawScreen({ onStopSpinning, category }: CategoryDrawScreen) {
   const [startSpinnig, setStartSpinning] = useState(false);
-  const categoryIndex = WHEEL_OPTIONS.findIndex(({ option }) => option == CATEGORIES_NAMES[category]);
+  const categoryIndex = WHEEL_OPTIONS.findIndex(
+    ({ option }) => option == CATEGORIES_NAMES[category]
+  );
   const isMounted = useRef(true);
 
   // Otherwise onStopSpinning callback will be called, even when component is already unomunted :/

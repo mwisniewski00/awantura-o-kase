@@ -24,7 +24,7 @@ export function GameScreen({ screenType, onStopSpinning }: GameScreenProps) {
       case GAME_SCREEN.QUESTION:
         return <QuestionTvScreen />;
       case GAME_SCREEN.CATEGORY_DRAW:
-        if (!game.currentCategory) return;
+        if (game.currentCategory == undefined) return;
         return (
           <CategoryDrawScreen onStopSpinning={onStopSpinning} category={game.currentCategory} />
         );

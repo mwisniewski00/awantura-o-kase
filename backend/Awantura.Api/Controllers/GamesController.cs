@@ -97,5 +97,24 @@ namespace Awantura.Api.Controllers
                 return Ok(isReady);
 
         }
+
+        [HttpPost("QuestionAnswer/{gameId}")]
+        [Authorize(Roles = "Admin, Player")]
+        public async Task<IActionResult> AnswerQuestion([FromRoute] Guid gameId, [FromBody] int answerIndex)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Forbid();
+            }
+
+            var user = await _userRepository.GetUserById(userId);
+            var userDto = _mapper.Map<PlayerDto>(user);
+
+            var result = await _gameRepository.AnswerQuestion(gameId, userDto.Id, answerIndex);
+            if (result.Success)
+                return Ok(result.Message);
+            return BadRequest(result.Message);
+        }
     }
 }

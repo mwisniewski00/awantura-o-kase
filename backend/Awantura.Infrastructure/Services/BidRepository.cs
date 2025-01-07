@@ -206,11 +206,6 @@ namespace Awantura.Infrastructure.Services
             };
         }
 
-        private void CleanBidsForGame(Guid gameId)
-        {
-            _context.Bids.RemoveRange(_context.Bids.Where(b => b.GameId == gameId));
-        }
-
         private CustomMessageResult CreateErrorResult(string message)
         {
             return new CustomMessageResult

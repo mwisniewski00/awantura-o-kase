@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using Awantura.Domain.Entities;
+﻿using Awantura.Domain.Entities;
 using Awantura.Domain.Enums;
 
 namespace Awantura.Domain.Models.Dtos

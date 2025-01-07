@@ -131,18 +131,17 @@ namespace Awantura.Infrastructure.Services
                 PlayerColor = participants.GreenPlayerId == player.Id ? "green" : "yellow"
             };
 
-            var signalRGroup = _hubContext.Clients.Group(gameId.ToString().ToLower());
-            await signalRGroup.SendAsync("PlayerJoined", playerJoinedEvent);
+            await SendEventToGameGroup(gameId, "PlayerJoined", playerJoinedEvent);
 
             if (isStartingGame)
             {
-                var currentQuestion = game.Questions.ElementAtOrDefault(game.Round - 1);
+                var currentQuestion = GetCurrentQuestion(game);
                 RoundStartedDto roundStartedDto = new RoundStartedDto
                 {
                     RoundNumber = game.Round,
                     Category = currentQuestion.Category
                 };
-                await signalRGroup.SendAsync("RoundStarted", roundStartedDto);
+                await SendEventToGameGroup(gameId, "RoundStarted", roundStartedDto);
             }
 
             return new CustomMessageResult
@@ -169,7 +168,7 @@ namespace Awantura.Infrastructure.Services
             if (participants.BluePlayerId != playerGuid && participants.GreenPlayerId != playerGuid && participants.YellowPlayerId != playerGuid)
                 return null;
 
-            var currentQuestion = game.Questions.ElementAtOrDefault(game.Round - 1);
+            var currentQuestion = GetCurrentQuestion(game);
 
             var gameBids = await GetGameBids(gameId);
 
@@ -285,8 +284,7 @@ namespace Awantura.Infrastructure.Services
             }
             await _context.SaveChangesAsync();
 
-            var signalRGroup = _hubContext.Clients.Group(gameId.ToString().ToLower());
-            await signalRGroup.SendAsync("PlayerReady", playerId);
+            await SendEventToGameGroup(gameId, "PlayerReady", playerId);
             if (areAllPlayersReady)
             {
                 var StartBiddingEventDto = new StartBiddingEventDto
@@ -295,39 +293,109 @@ namespace Awantura.Infrastructure.Services
                     PlayerGameScores = game.PlayerScores.ToList(),
                     Bids = newRoundBids
                 };
-                await signalRGroup.SendAsync("StartBidding", StartBiddingEventDto);
+                await SendEventToGameGroup(gameId, "StartBidding", StartBiddingEventDto);
             }
             return true;
         }
 
-        /*public async Task ProgressGameState(Guid gameId)
+        public async Task<CustomMessageResult> AnswerQuestion(Guid gameId, Guid playerId, int answerIndex)
         {
             var game = await _context.Games
+                .Include(g => g.PlayerScores)
+                .Include(g => g.Questions)
                 .Include(g => g.GameParticipants)
                 .FirstOrDefaultAsync(g => g.Id == gameId);
-
             if (game == null)
-                return;
-
-            if (game.GameState == GameState.QUESTION)
             {
-                if (game.Round == 7)
-                    game.GameState = GameState.FINISHED;
-                else
+                return new CustomMessageResult()
                 {
-                    game.Round++;
-                    game.GameState = GameState.CATEGORY_DRAW;
-                }
+                    Success = false,
+                    Message = "Game not found."
+                };
             }
-            else
+            if (game.GameState != GameState.QUESTION)
             {
-                game.GameState++;
+                return new CustomMessageResult()
+                {
+                    Success = false,
+                    Message = "You cannot answer the question in this game phase."
+                };
             }
-
+            var highestBid = await GetHighestBid(gameId);
+            if (highestBid == null)
+            {
+                return new CustomMessageResult()
+                {
+                    Success = false,
+                    Message = "No bids found for the game. Can't determine winner of bidding."
+                };
+            }
+            if (highestBid.PlayerId != playerId)
+            {
+                return new CustomMessageResult()
+                {
+                    Success = false,
+                    Message = "You cannot answer the question. You didn't win bidding."
+                };
+            }
+            var currentQuestion = GetCurrentQuestion(game);
+            if (currentQuestion == null)
+            {
+                return new CustomMessageResult()
+                {
+                    Success = false,
+                    Message = "Couldn't find a question for current round of game. Probably error occured when creating game."
+                };
+            }
+            var isAnswerCorrect = currentQuestion != null && currentQuestion.CorrectAnswer == answerIndex;
+            var playerScore = game.PlayerScores.Where(p => p.PlayerId == playerId).FirstOrDefault();
+            if (playerScore == null)
+            {
+                return new CustomMessageResult()
+                {
+                    Success = false,
+                    Message = "Couldn't find a playerScore for user account. Probably error occured when creating game."
+                };
+            }
+            if (isAnswerCorrect)
+            {
+                playerScore.Balance += game.Pool;
+                game.Pool = 0;
+            }
+            game.Round++;
+            game.GameState = GameState.CATEGORY_DRAW;
+            CleanBidsForGame(gameId);
+            ResetGameReadiness(game);
             await _context.SaveChangesAsync();
-        }*/
+            var newQuestion = GetCurrentQuestion(game);
+            var questionAnswerEventDto = new QuestionAnswerEventDto()
+            {
+                AnsweringPlayerId = playerId,
+                NewPool = game.Pool,
+                NewAccountBalance = playerScore.Balance,
+                IsAnswerCorrect = isAnswerCorrect,
+                NewQuestionCategory = newQuestion.Category
+            };
+            await SendEventToGameGroup(gameId, "QuestionAnswer", questionAnswerEventDto);
+            return new CustomMessageResult()
+            {
+                Success = true,
+                Message = "Question answer processed correctly."
+            };
+        }
 
         #region Helper methods
+
+        private async Task SendEventToGameGroup(Guid gameId, string eventName, Object eventBody)
+        {
+            var signalRGroup = _hubContext.Clients.Group(gameId.ToString().ToLower());
+            await signalRGroup.SendAsync(eventName, eventBody);
+        }
+
+        private Question? GetCurrentQuestion(Game game)
+        {
+            return game.Questions.ElementAtOrDefault(game.Round - 1);
+        }
 
         private async Task<List<Bid>> GetGameBids(Guid gameId)
         {
@@ -335,6 +403,26 @@ namespace Awantura.Infrastructure.Services
                 .Where(b => b.GameId == gameId)
                 .OrderByDescending(b => b.Amount)
                 .ToListAsync();
+        }
+
+        private async Task<Bid?> GetHighestBid(Guid gameId)
+        {
+            return await _context.Bids
+                .Where(b => b.GameId == gameId)
+                .OrderByDescending(b => b.Amount)
+                .FirstOrDefaultAsync();
+        }
+
+        private void CleanBidsForGame(Guid gameId)
+        {
+            _context.Bids.RemoveRange(_context.Bids.Where(b => b.GameId == gameId));
+        }
+
+        private void ResetGameReadiness(Game game)
+        {
+            game.GameParticipants.isBluePlayerReady = false;
+            game.GameParticipants.isGreenPlayerReady = false;
+            game.GameParticipants.isYellowPlayerReady = false;
         }
 
         #endregion

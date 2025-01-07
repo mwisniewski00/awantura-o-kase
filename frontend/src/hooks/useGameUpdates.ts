@@ -1,3 +1,4 @@
+import { NOTIFICATION_TYPE, useGameNotifications } from '../providers/GameNotificationsProvider';
 import { useGameContext } from '../providers/GameProvider';
 import { SignalRContext } from '../providers/GameSignalRContext';
 import {
@@ -6,6 +7,7 @@ import {
   GameUpdateEvent,
   PlayerJoinedMessage,
   PlayerReadyEvent,
+  QuestionAnswerEvent,
   RoundStartedEvent,
   StartBiddingEvent
 } from '../types/events';
@@ -13,6 +15,7 @@ import { GAME_STATE } from '../types/game';
 
 export function useGameUpdates() {
   const { setGame } = useGameContext();
+  const { showNotification } = useGameNotifications();
 
   SignalRContext.useSignalREffect(
     GameUpdateEvent.PlayerJoined,
@@ -119,6 +122,34 @@ export function useGameUpdates() {
           answers: event.answers
         }
       })),
+    [setGame]
+  );
+
+  SignalRContext.useSignalREffect(
+    GameUpdateEvent.QuestionAnswer,
+    (event: QuestionAnswerEvent) =>
+      setGame((game) => {
+        if (event.isAnswerCorrect) {
+          showNotification('Udzielono poprawnej odpowiedzi!');
+        } else {
+          showNotification('Odpowiedź niepoprawna!', NOTIFICATION_TYPE.FAIL);
+        }
+        const accountBalances = {
+          ...game.accountBalances,
+          [event.answeringPlayerId]: event.newAccountBalance
+        };
+        return {
+          ...game,
+          state: GAME_STATE.CATEGORY_DRAW,
+          currentBiddings: {},
+          pool: event.newPool,
+          accountBalances,
+          currentRoundNumber: game.currentRoundNumber + 1,
+          currentCategory: event.newQuestionCategory,
+          lastBid: undefined,
+          playersReadiness: undefined
+        };
+      }),
     [setGame]
   );
 }

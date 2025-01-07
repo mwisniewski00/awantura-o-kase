@@ -1,16 +1,13 @@
 import styled from 'styled-components';
 import { useGameContext } from '../../providers/GameProvider';
-import React from 'react';
+import React, { useState } from 'react';
 import { Paper } from '@mui/material';
-import {
-  indexToLetter,
-  MOCKED_QUESTIONS_CATEGORIES,
-  PLAYER_COLOR_TEXT
-} from '../../services/utils';
+import { getErrorMessage, indexToLetter, PLAYER_COLOR_TEXT } from '../../services/utils';
 import { useAuth } from '../../providers/AuthProvider';
 import { PLAYER_CSS_COLORS } from '../../utils/styles';
-import { GAME_STATE, PLAYER_COLOR } from '../../types/game';
-import { NOTIFICATION_TYPE, useGameNotifications } from '../../providers/GameNotificationsProvider';
+import { PLAYER_COLOR } from '../../types/game';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import { useErrorNotification } from '../../hooks/useErrorNotification';
 
 const QuestionControlsContainer = styled.div`
   margin-top: 20px;
@@ -47,25 +44,16 @@ const AnsweringPlayerInfo = styled(Paper)<{ backgroundColor: string }>`
   background-color: ${(props) => props.backgroundColor};
 `;
 
-const MOCKED_ANSWERS_PER_ROUND: Record<number, number> = {
-  1: 1,
-  2: 1,
-  3: 1,
-  4: 2,
-  5: 1,
-  6: 2,
-  7: 1
-};
-
 export function QuestionControls() {
   const {
-    game: { currentQuestion, currentRoundNumber, lastBid, players, accountBalances },
-    setGame
+    game: { currentQuestion, lastBid, players, id: gameId }
   } = useGameContext();
   const {
     auth: { id }
   } = useAuth();
-  const { showNotification } = useGameNotifications();
+  const [isAnsweringLoading, setIsAnsweringLoading] = useState(false);
+  const axiosPrivate = useAxiosPrivate();
+  const notifyError = useErrorNotification();
 
   const { answers } = currentQuestion!;
 
@@ -75,42 +63,18 @@ export function QuestionControls() {
     Object.entries(players).find(([_, player]) => player.id === lastBid?.playerId) ?? [];
 
   const onAnswerClick = (answerIndex: number) => {
-    if (!isPlayerAnswering) return;
-    const newPoolAddition =
-      Object.values(accountBalances).filter((balance) => balance >= 500).length * 500;
-    if (MOCKED_ANSWERS_PER_ROUND[currentRoundNumber] === answerIndex) {
-      setGame((game) => ({
-        ...game,
-        accountBalances: {
-          ...game.accountBalances,
-          [lastBid!.playerId]: game.accountBalances[lastBid!.playerId] + game.pool - 500
-        },
-        pool: newPoolAddition
-      }));
-      showNotification('Gratuluję, poprawna odpowiedź!');
-    } else {
-      setGame((game) => ({
-        ...game,
-        pool: game.pool + newPoolAddition
-      }));
-      showNotification('Nietesty, niepoprawna odpowiedź', NOTIFICATION_TYPE.FAIL);
-    }
-    const newBiddings = Object.fromEntries(
-      Object.values(players).map((player) => [
-        player.id,
-        accountBalances[player.id] >= 500 ? 500 : 0
-      ])
-    );
-    setGame((game) => ({
-      ...game,
-      state: game.currentRoundNumber === 7 ? GAME_STATE.FINISHED : GAME_STATE.CATEGORY_DRAW,
-      currentRoundNumber:
-        game.currentRoundNumber === 7 ? game.currentRoundNumber : game.currentRoundNumber + 1,
-      currentCategory: MOCKED_QUESTIONS_CATEGORIES[game.currentRoundNumber],
-      lastBid: undefined,
-      playersReadiness: undefined,
-      currentBiddings: newBiddings
-    }));
+    if (!isPlayerAnswering || isAnsweringLoading) return;
+    void (async () => {
+      setIsAnsweringLoading(true);
+      try {
+        await axiosPrivate.post(`/Games/QuestionAnswer/${gameId}`, answerIndex);
+      } catch (error) {
+        console.error(error);
+        notifyError(getErrorMessage(error));
+      } finally {
+        setIsAnsweringLoading(false);
+      }
+    })();
   };
 
   return (
@@ -124,7 +88,7 @@ export function QuestionControls() {
           <QuestionContainer
             key={answer}
             elevation={5}
-            isChoosable={isPlayerAnswering}
+            isChoosable={isPlayerAnswering && !isAnsweringLoading}
             onClick={() => onAnswerClick(index)}>
             {indexToLetter(index)}. {answer}
           </QuestionContainer>

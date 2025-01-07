@@ -6,7 +6,8 @@ export enum GameUpdateEvent {
   PlayerReady = 'PlayerReady',
   StartBidding = 'StartBidding',
   BidDone = 'BidDone',
-  BiddingEnd = 'BiddingEnd'
+  BiddingEnd = 'BiddingEnd',
+  QuestionAnswer = 'QuestionAnswer'
 }
 
 export enum InvokeEvents {
@@ -43,4 +44,12 @@ export interface BidDoneEvent {
 export interface BiddingEndEvent {
   questionText: string;
   answers: string[];
+}
+
+export interface QuestionAnswerEvent {
+  newPool: number;
+  answeringPlayerId: string;
+  newAccountBalance: number;
+  isAnswerCorrect: boolean;
+  newQuestionCategory: QUESTION_CATEGORY;
 }

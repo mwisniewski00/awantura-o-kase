@@ -43,8 +43,8 @@ export function Game() {
 
   return (
     <GameProvider>
-      <GameSignalRContext>
-        <GameNotificationsProvider>
+      <GameNotificationsProvider>
+        <GameSignalRContext>
           <GameContainer>
             <GameHeader>
               <Button endIcon={<ContentCopy />} onClick={onCopy}>
@@ -54,8 +54,8 @@ export function Game() {
             </GameHeader>
             <GameContent />
           </GameContainer>
-        </GameNotificationsProvider>
-      </GameSignalRContext>
+        </GameSignalRContext>
+      </GameNotificationsProvider>
     </GameProvider>
   );
 }
