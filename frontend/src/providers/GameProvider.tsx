@@ -19,6 +19,8 @@ interface GameContext {
   isLoading: boolean;
   setGame: React.Dispatch<React.SetStateAction<Game>>;
   game: Game;
+  isWheelSpinningDone: boolean;
+  setIsWheelSpinningDone: (isDone: boolean) => void;
 }
 
 const GameContext = createContext<GameContext | null>(null);
@@ -41,6 +43,7 @@ const getInitialMockedGame = () => ({
 
 export function GameProvider({ children }: PropsWithChildren<object>) {
   const [game, setGame] = useState<Game>(getInitialMockedGame());
+  const [isWheelSpinningDone, setIsWheelSpinningDone] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const axiosPrivate = useAxiosPrivate();
   const { id } = useParams();
@@ -139,9 +142,11 @@ export function GameProvider({ children }: PropsWithChildren<object>) {
     () => ({
       game: game,
       isLoading,
-      setGame
+      setGame,
+      isWheelSpinningDone,
+      setIsWheelSpinningDone
     }),
-    [game, isLoading]
+    [game, isLoading, isWheelSpinningDone]
   );
 
   if (isLoading || !game) return <LoadingPage text="Loading game..." />;

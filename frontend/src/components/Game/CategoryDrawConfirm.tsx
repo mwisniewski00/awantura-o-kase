@@ -52,17 +52,12 @@ const PlayerLabel = styled.div<{ backgroundColor: string }>`
   }
 `;
 
-interface CategoryDrawConfirm {
-  isSpinningDone: boolean;
-  setIsSpinningDone: (isDone: boolean) => void;
-}
-
-export function CategoryDrawConfirm({ isSpinningDone }: CategoryDrawConfirm) {
-  const { game } = useGameContext();
+export function CategoryDrawConfirm() {
+  const { game, isWheelSpinningDone } = useGameContext();
 
   return (
     <Container>
-      <AnnouncementBanner show={isSpinningDone} elevation={8}>
+      <AnnouncementBanner show={isWheelSpinningDone} elevation={8}>
         Kategoria: {CATEGORIES_NAMES[game.currentCategory!]}
       </AnnouncementBanner>
       <PlayerReadinessControlsContainer>
@@ -76,7 +71,7 @@ export function CategoryDrawConfirm({ isSpinningDone }: CategoryDrawConfirm) {
             <PlayerReadinessStatus
               player={player}
               playerColor={playerColor as PLAYER_COLOR}
-              isSpinningDone={isSpinningDone}
+              isSpinningDone={isWheelSpinningDone}
             />
           </PlayerReadinessCard>
         ))}

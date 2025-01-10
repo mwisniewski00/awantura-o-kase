@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { GameScreen } from './GameScreen';
 import { Box } from '@mui/material';
@@ -31,8 +31,7 @@ const GAME_STATE_TO_CONTROLS_SCREEN_MAPPING: Record<GAME_STATE, GAME_CONTROLS_SC
 };
 
 export function GameContent() {
-  const [isSpinningDone, setIsSpinningDone] = useState(false);
-  const { game } = useGameContext();
+  const { game, setIsWheelSpinningDone } = useGameContext();
 
   if (!game) return;
 
@@ -43,18 +42,14 @@ export function GameContent() {
   return (
     <GameContentContainer>
       <Box sx={{ height: '50%', width: '100%' }}>
-        <GameScreen screenType={gameScreen} onStopSpinning={() => setIsSpinningDone(true)} />
+        <GameScreen screenType={gameScreen} onStopSpinning={() => setIsWheelSpinningDone(true)} />
       </Box>
       <Box
         sx={{
           height: '50%',
           width: '100%'
         }}>
-        <GameControls
-          controlsScreen={controlsScreen}
-          isSpinningDone={isSpinningDone}
-          setIsSpinningDone={setIsSpinningDone}
-        />
+        <GameControls controlsScreen={controlsScreen} />
       </Box>
     </GameContentContainer>
   );

@@ -81,7 +81,7 @@ export function BiddingControls({ playerId, playerColor }: BiddingControlsProps)
     })();
   };
 
-  if (id !== playerId) return <BiddingControlsContainer />;
+  if (id != playerId) return <BiddingControlsContainer />;
 
   const areMoneyGone = currentUserAccountBalance + currentUserBid <= lastBidAmount + 100;
 

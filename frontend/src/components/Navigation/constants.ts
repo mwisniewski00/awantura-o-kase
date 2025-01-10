@@ -1,4 +1,4 @@
-import { QUESTION_CATEGORY } from "../../types/game";
+import { QUESTION_CATEGORY } from '../../types/game';
 
 export interface MENU_OPTION {
   label: string;
@@ -13,12 +13,8 @@ export enum ROUTES {
   MAIN = '/'
 }
 
-export const MAIN_PAGES = ['Jak grać?', 'Ranking'];
+export const MAIN_PAGES = [];
 export const LOGGED_IN_USER_MENU_OPTIONS: MENU_OPTION[] = [
-  {
-    label: 'Account',
-    route: ROUTES.ACCOUNT
-  },
   {
     label: 'Logout',
     route: ROUTES.LOG_OUT
@@ -36,12 +32,12 @@ export const ANONYMOUS_USER_MENU_OPTIONS: MENU_OPTION[] = [
 ];
 
 export const CATEGORIES_NAMES: Record<QUESTION_CATEGORY, string> = {
-  [QUESTION_CATEGORY.ASTRONOMY]: "Astronomia",
-  [QUESTION_CATEGORY.BIOLOGY]: "Biologia",
-  [QUESTION_CATEGORY.CHEMISTRY]: "Chemia",
-  [QUESTION_CATEGORY.FISHING]: "Wędkarstwo",
-  [QUESTION_CATEGORY.FOOTBALL]: "Piłka nożna",
-  [QUESTION_CATEGORY.GEOGRAPHY]: "Geografia",
-  [QUESTION_CATEGORY.POLISH_CINEMA]: "Polskie kino",
-  [QUESTION_CATEGORY.POLITICS]: "Polityka"
-}
+  [QUESTION_CATEGORY.ASTRONOMY]: 'Astronomia',
+  [QUESTION_CATEGORY.BIOLOGY]: 'Biologia',
+  [QUESTION_CATEGORY.CHEMISTRY]: 'Chemia',
+  [QUESTION_CATEGORY.FISHING]: 'Wędkarstwo',
+  [QUESTION_CATEGORY.FOOTBALL]: 'Piłka nożna',
+  [QUESTION_CATEGORY.GEOGRAPHY]: 'Geografia',
+  [QUESTION_CATEGORY.POLISH_CINEMA]: 'Polskie kino',
+  [QUESTION_CATEGORY.POLITICS]: 'Polityka'
+};

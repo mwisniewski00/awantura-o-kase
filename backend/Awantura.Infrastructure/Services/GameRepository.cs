@@ -220,7 +220,7 @@ namespace Awantura.Infrastructure.Services
                     Bids = gameBids
                 };
             }
-            else if (game.GameState == GameState.QUESTION)
+            else if (game.GameState == GameState.QUESTION || game.GameState == GameState.FINISHED)
             {
                 return new GameInfoDto
                 {
@@ -362,8 +362,10 @@ namespace Awantura.Infrastructure.Services
                 playerScore.Balance += game.Pool;
                 game.Pool = 0;
             }
-            game.Round++;
-            game.GameState = GameState.CATEGORY_DRAW;
+            game.GameState = game.Round == 7 ? GameState.FINISHED : GameState.CATEGORY_DRAW;
+            if (game.Round < 7){
+                game.Round++;
+            }
             CleanBidsForGame(gameId);
             ResetGameReadiness(game);
             await _context.SaveChangesAsync();

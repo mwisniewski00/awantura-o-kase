@@ -7,24 +7,13 @@ import { QuestionControls } from './QuestionControls';
 
 interface GameControlsProps {
   controlsScreen: GAME_CONTROLS_SCREEN;
-  isSpinningDone: boolean;
-  setIsSpinningDone: (isDone: boolean) => void;
 }
 
-export function GameControls({
-  controlsScreen,
-  setIsSpinningDone,
-  isSpinningDone
-}: GameControlsProps) {
+export function GameControls({ controlsScreen }: GameControlsProps) {
   const currentScreen = useMemo(() => {
     switch (controlsScreen) {
       case GAME_CONTROLS_SCREEN.CATEGORY_DRAW_CONFIRM:
-        return (
-          <CategoryDrawConfirm
-            isSpinningDone={isSpinningDone}
-            setIsSpinningDone={setIsSpinningDone}
-          />
-        );
+        return <CategoryDrawConfirm />;
       case GAME_CONTROLS_SCREEN.BIDDING:
         return <BiddingScreen />;
       case GAME_CONTROLS_SCREEN.QUESTION:
@@ -34,7 +23,7 @@ export function GameControls({
       default:
         return null;
     }
-  }, [controlsScreen, isSpinningDone, setIsSpinningDone]);
+  }, [controlsScreen]);
 
   return currentScreen;
 }

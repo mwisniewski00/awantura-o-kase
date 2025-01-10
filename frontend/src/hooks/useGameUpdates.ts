@@ -14,7 +14,7 @@ import {
 import { GAME_STATE } from '../types/game';
 
 export function useGameUpdates() {
-  const { setGame } = useGameContext();
+  const { setGame, setIsWheelSpinningDone } = useGameContext();
   const { showNotification } = useGameNotifications();
 
   SignalRContext.useSignalREffect(
@@ -138,13 +138,15 @@ export function useGameUpdates() {
           ...game.accountBalances,
           [event.answeringPlayerId]: event.newAccountBalance
         };
+        setIsWheelSpinningDone(false);
+        const newRoundNumber = game.currentRoundNumber + 1;
         return {
           ...game,
-          state: GAME_STATE.CATEGORY_DRAW,
+          state: newRoundNumber == 8 ? GAME_STATE.FINISHED : GAME_STATE.CATEGORY_DRAW,
           currentBiddings: {},
           pool: event.newPool,
           accountBalances,
-          currentRoundNumber: game.currentRoundNumber + 1,
+          currentRoundNumber: newRoundNumber,
           currentCategory: event.newQuestionCategory,
           lastBid: undefined,
           playersReadiness: undefined

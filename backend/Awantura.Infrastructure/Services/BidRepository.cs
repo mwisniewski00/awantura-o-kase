@@ -34,10 +34,14 @@ namespace Awantura.Infrastructure.Services
                 return CreateErrorResult("Bidding is not active in this game.");
 
             var playerScore = GetPlayerScore(game, playerId);
+            var currentUserBid = await GetCurrentUserBid(gameId, playerId);
+            if (currentUserBid == null) {
+                return CreateErrorResult("User is not included in this bidding round.");
+            }
             if (playerScore == null)
                 return CreateErrorResult("Player not found in the game.");
 
-            if (!HasSufficientFunds(playerScore, bidAmount))
+            if (!HasSufficientFunds(playerScore, currentUserBid, bidAmount))
                 return CreateErrorResult("Insufficient funds to make this bid.");
 
             var highestBid = await GetHighestBid(gameId);
@@ -54,7 +58,6 @@ namespace Awantura.Infrastructure.Services
             if (!IsBidHigherThanCurrentHighest(bidAmount, highestBidAmount))
                 return CreateErrorResult("Bid amount must be higher than the current highest bid.");
 
-            var currentUserBid = await GetCurrentUserBid(gameId, playerId);
             var currentUserBidAmount = 0;
             if (currentUserBid != null)
             {
@@ -180,9 +183,9 @@ namespace Awantura.Infrastructure.Services
             return game.GameState == GameState.BIDDING;
         }
 
-        private bool HasSufficientFunds(PlayerGameScore playerScore, int bidAmount)
+        private bool HasSufficientFunds(PlayerGameScore playerScore, Bid currentUserBid, int bidAmount)
         {
-            return playerScore.Balance >= bidAmount;
+            return playerScore.Balance + currentUserBid.Amount >= bidAmount;
         }
 
         private bool IsBidHigherThanCurrentHighest(int bidAmount, int highestBidAmount)
@@ -192,7 +195,7 @@ namespace Awantura.Infrastructure.Services
 
         private bool IsBiddingTimePassed(Bid? lastBid)
         {
-            return lastBid != null && (DateTime.UtcNow - lastBid.TimeStamp).TotalSeconds > 10;
+            return lastBid != null && lastBid.Amount > 500 && (DateTime.UtcNow - lastBid.TimeStamp).TotalSeconds > 10;
         }
 
         private Bid CreateNewBid(Guid gameId, Guid playerId, int bidAmount)
